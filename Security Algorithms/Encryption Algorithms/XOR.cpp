@@ -23,6 +23,7 @@
     Account for non 'round' keys
     check and handle keys larger than a file
     add a message that an operation has finished
+    test
 */
 
 void xorDecrypt(std::string ciphertextFileName, std::string key) {
