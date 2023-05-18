@@ -20,7 +20,6 @@
     TODO:
     Clean up code
     add better/more comments
-    Account for non 'round' keys
     check and handle keys larger than a file
     add a message that an operation has finished
     testing
@@ -82,7 +81,6 @@ void xorEncrypt(std::string plaintextFileName, std::string key) {
                 int b = buff[j];
                 int k = key.at(j);
                 int data = b ^ k;
-                std::cout << k << " ";
                 ciphertextFP << data << " ";
             }
             i = 0;
@@ -90,6 +88,13 @@ void xorEncrypt(std::string plaintextFileName, std::string key) {
         }
         i++;
     }
+    for (int j = 0; j < i; j++) {
+        int b = buff[j];
+        int k = key.at(j);
+        int data = b ^ k;
+        ciphertextFP << data << " ";
+    }
+    std::cout << i;
     ciphertextFP.close();
     plaintextFP.close();
 
