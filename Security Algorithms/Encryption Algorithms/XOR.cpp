@@ -17,7 +17,7 @@
     into your plaintext file. The output will be in a file named 'ciphertext.txt'. The key here is
     similar to a password. The longer and stranger it is, the better.
 
-    TODO
+    TODO:
 */
 
 void xorDecrypt(std::string ciphertextFileName, std::string key) {
