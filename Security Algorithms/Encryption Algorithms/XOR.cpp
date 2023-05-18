@@ -72,29 +72,9 @@ void xorEncrypt(std::string plaintextFileName, std::string key) {
     std::cout << "Encrypting ... data will be written to a file named 'ciphertext.txt' when finished" << std::endl;
     char c;
     char buff[key.length()];
-    int i = 0;
-    while (plaintextFP.get(c)) {
-        buff[i] = c;
-        if (i == key.length() - 1) {
-            //buffer is full and can be proccessed
-            for (int j = 0; j < key.length(); j++) {
-                int b = buff[j];
-                int k = key.at(j);
-                int data = b ^ k;
-                ciphertextFP << data << " ";
-            }
-            i = 0;
-            continue;
-        }
-        i++;
+    for (int i = 0; plaintextFP.get(c); i++) {
+        ciphertextFP << (c ^ key.at(i % key.length())) << " ";
     }
-    for (int j = 0; j < i; j++) {
-        int b = buff[j];
-        int k = key.at(j);
-        int data = b ^ k;
-        ciphertextFP << data << " ";
-    }
-    std::cout << i;
     ciphertextFP.close();
     plaintextFP.close();
 
