@@ -4,16 +4,24 @@
 // - if that even possible
 #include <bits/stdc++.h>
  
-// Returns gcd of a and b
-int gcd(int a, int h)
-{
-    int temp;
+//Use the euclidean algorithm for gcd
+int gcd(int x, int y) {
+    if (x < y) {
+        //ensures x is always greater
+        int temp = x;
+        x = y;
+        y = temp;
+    }
     while (1) {
-        temp = a % h;
-        if (temp == 0)
-            return h;
-        a = h;
-        h = temp;
+        //x = n * y + d
+        //gcd(x, y) = gcd(y, d)
+        int d = x % y;
+        if (d == 0) {
+            return y;
+        } else {
+            x = y;
+            y = d;
+        }
     }
 }
  
