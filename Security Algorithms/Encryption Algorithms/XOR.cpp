@@ -24,6 +24,7 @@
 
     TODO:
     Change output so it more uniform between different modes/cases
+    Allow the user to input the value by which the key changes for advanced modes
 
 */
 
