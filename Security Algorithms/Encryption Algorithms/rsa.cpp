@@ -24,6 +24,15 @@ int gcd(int x, int y) {
         }
     }
 }
+
+void decrypt() {
+    
+}
+
+void encrypt() {
+
+}
+
  
 // Code to demonstrate RSA algorithm
 int main()
