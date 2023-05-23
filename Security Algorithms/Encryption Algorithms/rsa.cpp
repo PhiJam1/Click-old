@@ -26,7 +26,7 @@ int gcd(int x, int y) {
 }
 
 void decrypt() {
-    
+
 }
 
 void encrypt() {
@@ -64,7 +64,7 @@ int main()
     double d = (1 + (k * phi)) / e;
  
     // Message to be encrypted
-    double msg = 12;
+    double msg = 2;
  
     printf("Message data = %lf", msg);
  
