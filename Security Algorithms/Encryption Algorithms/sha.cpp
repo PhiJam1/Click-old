@@ -39,6 +39,9 @@ unsigned int k[] = { 0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b,
     as there is more data to grab. It will pad data if needed.
 
     Note, blockPtr must point to a char array of length = 64
+
+    ok so what I wrote above is wrong. Nearly every block
+    will need some padding. 
 */
 bool get512Block(char *blockPtr, int blockNumber) {
     std::ifstream inFile;
@@ -53,9 +56,17 @@ bool get512Block(char *blockPtr, int blockNumber) {
     //Move to the next block
     inFile.seekg(64 * blockNumber, std::ios::cur);
     
-    //Grab 64 bytes (512 bits)
+    /*
+        512 = msg + L + 8 + padding
+        L is a 64 bit int that represents the length of the msg
+        8 is for appending a 0x80 (this is 10000000) - appending the 1 bit
+        pad to get it the rest of the way
+        So that means a max msg size of 440 bits which is 55 chars (440 / 8, 8 bits in one char).
+
+        pretty good: https://www.rfc-editor.org/rfc/rfc6234#page-8
+    */
     char c = 'a';
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i < 55; i++) {
         
         //If this is the last block and not a multiple of 512
         if (inFile.eof()) {
