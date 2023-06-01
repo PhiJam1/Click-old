@@ -2,7 +2,7 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
-#include "structures.h"
+#include "aes_structures.h"
 
 using namespace std;
 
@@ -179,9 +179,9 @@ int main() {
     unsigned char *encryptedMessage = new unsigned char[paddedMessageLen];
 
     string str;
-    ifstream infile("keyfile", ios::in | ios::binary);
+    ifstream infile("aes_keyfile", ios::in | ios::binary);
     if (!infile.is_open()) {
-        cout << "Unable to open keyfile. (It doesn't exist)" << endl;
+        cout << "Unable to open aes_keyfile. (It doesn't exist)" << endl;
         return 1;
     }
 
