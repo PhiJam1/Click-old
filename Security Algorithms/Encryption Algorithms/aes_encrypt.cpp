@@ -1,3 +1,10 @@
+//STEPS TO COMPILE AND ENCRYPT/DECRYPT USING AES 128-bit
+//Make object files for encryption and decryption
+//g++ aes_encrypt.cpp -o encrypt
+//g++ aes_decrypt.cpp -o decrypt
+//Run ./encrypt for encryption of a file
+//Run ./decrypt for decryption of a file
+
 #include <iostream>
 #include <cstring>
 #include <fstream>
