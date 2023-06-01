@@ -40,8 +40,11 @@ unsigned int k[] = { 0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b,
 
     Note, blockPtr must point to a char array of length = 64
 
-    ok so what I wrote above is wrong. Nearly every block
-    will need some padding. 
+    ok so what I wrote above is wrong. Every block will get
+    atleast 7 bits of padding
+
+    this is getting very complicated. I'm going to do an inital
+    draft of this for the case that we are inputing just one block
 */
 bool get512Block(char *blockPtr, int blockNumber) {
     std::ifstream inFile;
@@ -53,9 +56,9 @@ bool get512Block(char *blockPtr, int blockNumber) {
         return false;
     }
 
-    //Move to the next block
+    //Move to the next block, 64 chars = 512 bits. 
     inFile.seekg(64 * blockNumber, std::ios::cur);
-    
+
     /*
         512 = msg + L + 8 + padding
         L is a 64 bit int that represents the length of the msg
@@ -64,22 +67,59 @@ bool get512Block(char *blockPtr, int blockNumber) {
         So that means a max msg size of 440 bits which is 55 chars (440 / 8, 8 bits in one char).
 
         pretty good: https://www.rfc-editor.org/rfc/rfc6234#page-8
+        Equation:
+        ( L + 1 + K ) mod 512 = 448.
+        Then add in the 64 bit integer representing the length of L
+        Also, that 1 bit will be added in as an 8 bit number (10000000, 0x80). So that is why
+        L + k = 440 for small messages. 
     */
     char c = 'a';
-    for (int i = 0; i < 55; i++) {
-        
-        //If this is the last block and not a multiple of 512
+    int i;
+    for (i = 0; i < (440 / (sizeof(char) * 8)); i++) {
+        // to get the number of chars we can read in for 440 bits
+        //(440 / (sizeof(char) * 8)) should almost always equal 55, but just to be safe.
+
+        // If this is the last block and not a multiple of 512
         if (inFile.eof()) {
-            //pad...might need eariler defined constants...time for an h file
-            return false;
+            i++;
+            break;
         }
 
         inFile.get(c);
         blockPtr[i] = c;
     }
+    unsigned short length =(unsigned short) i * sizeof(char) * 8; //in bits
+
+    //append the 1
+    blockPtr[i++] = (char) 0x80;
+
+    //at this point, we will have a max of 448 bits
+
+    //if we are not at the max, add enough bits, that we get to 448 bits.
+    //remember, bits stored will always be a multipe of 8.
+
+    //pad, I'm adding 0s are chars, so each should be 0000 0000
+    while (i < 56) { //don't do <= bc i starts at 0
+        blockPtr[i] = (char) 0;
+        i++;
+    }
+    
+    //now the message should have 448 bits... append the length (of bits)
+    //there are 64 bits to fill. length is a short and only needs 2. so that's
+    //6 bytes = 48 bits to fill with 0s.
+
+    while (i < 62) {
+        blockPtr[i++] = (char) 0;
+    }
+
+
+    blockPtr[62] = length >> 8;
+    blockPtr[63] = length << 8 >> 8;
+
+
 
     inFile.close();
-    return true;
+    return inFile.eof();
 }
 
 
