@@ -32,20 +32,8 @@ unsigned int k[] = { 0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b,
             0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7,
             0xc67178f2};
 
-/*
-    This function grab a 512 bit (64 char) block of the message
-    and a index for the block number. It will place that block
-    to where the first arg points to. It will return true as long
-    as there is more data to grab. It will pad data if needed.
 
-    Note, blockPtr must point to a char array of length = 64
-
-    ok so what I wrote above is wrong. Every block will get
-    atleast 7 bits of padding
-
-    this is getting very complicated. I'm going to do an inital
-    draft of this for the case that we are inputing just one block
-*/
+// This only works for one block rn (that is 55 characters)
 bool get512Block(char *blockPtr, int blockNumber) {
     std::ifstream inFile;
     inFile.open("plaintext.txt");
@@ -59,36 +47,29 @@ bool get512Block(char *blockPtr, int blockNumber) {
     //Move to the next block, 64 chars = 512 bits. 
     inFile.seekg(64 * blockNumber, std::ios::cur);
 
-    /*
-        512 = msg + L + 8 + padding
-        L is a 64 bit int that represents the length of the msg
-        8 is for appending a 0x80 (this is 10000000) - appending the 1 bit
-        pad to get it the rest of the way
-        So that means a max msg size of 440 bits which is 55 chars (440 / 8, 8 bits in one char).
-
-        pretty good: https://www.rfc-editor.org/rfc/rfc6234#page-8
-        Equation:
-        ( L + 1 + K ) mod 512 = 448.
-        Then add in the 64 bit integer representing the length of L
-        Also, that 1 bit will be added in as an 8 bit number (10000000, 0x80). So that is why
-        L + k = 440 for small messages. 
-    */
     char c = 'a';
     int i;
-    for (i = 0; i < (440 / (sizeof(char) * 8)); i++) {
-        // to get the number of chars we can read in for 440 bits
-        //(440 / (sizeof(char) * 8)) should almost always equal 55, but just to be safe.
+    for (i = 0; i < 64; i++) {
 
         // If this is the last block and not a multiple of 512
         if (inFile.eof()) {
-            i++;
             break;
         }
 
         inFile.get(c);
         blockPtr[i] = c;
+        std::cout << "char: " << c << " i: " << i << std::endl;
     }
-    unsigned short length =(unsigned short) i * sizeof(char) * 8; //in bits
+
+    //This block is full. No padding needed
+    if (i == 64) {
+        return true;
+    }
+
+    i -= 1; //it grabs the last char twice for some reason
+    std::cout << "i: " << i << std::endl;
+    unsigned long length = (unsigned long) (i) * (sizeof(char) * 8) * (blockNumber + 1); //in bits
+    //unsinged long is 4 bytes its max value can support files up to 5mb I THINK.
 
     //append the 1
     blockPtr[i++] = (char) 0x80;
@@ -98,41 +79,68 @@ bool get512Block(char *blockPtr, int blockNumber) {
     //if we are not at the max, add enough bits, that we get to 448 bits.
     //remember, bits stored will always be a multipe of 8.
 
-    //pad, I'm adding 0s are chars, so each should be 0000 0000
+    //pad, I'm adding 0s as chars, so each should be 0000 0000
     while (i < 56) { //don't do <= bc i starts at 0
         blockPtr[i] = (char) 0;
         i++;
     }
     
     //now the message should have 448 bits... append the length (of bits)
-    //there are 64 bits to fill. length is a short and only needs 2. so that's
-    //6 bytes = 48 bits to fill with 0s.
 
-    while (i < 62) {
+
+    while (i < 60) {
         blockPtr[i++] = (char) 0;
     }
 
+    //massive chance that this does some nonsense 
+    blockPtr[60] = length >> 24;
+    blockPtr[61] = (length << 8) >> 24;;
+    blockPtr[62] = (length << 16) >> 24;
+    blockPtr[63] = (length << 24) >> 24;
 
-    blockPtr[62] = length >> 8;
-    blockPtr[63] = length << 8 >> 8;
-
-
+    std::cout << "length: " << length << std::endl;
 
     inFile.close();
-    return inFile.eof();
+    return true;
+}
+
+void createSchedule (int *messageBlock, char *block) {
+    //sizeof(int) = 4, so that is 32 bits.
+    //messageBlock[0] = (block[0] << (8 * 3)) + (block[1] << (8 * 2)) + (block[2] << (8 * 1)) + block[4];
+
+    int i = 0;
+    int a = 0;
+    while (i < 64) {
+        int z = (block[i] << (8 * 3));
+        int b = (block[++i] << (8 * 2));
+        int c = (block[++i] << (8 * 1));
+        int d = block[++i];
+        messageBlock[a++] = z + b + c + d;
+    }
+
+    
+    for (i = 0; i < 16; i++) {
+        std::cout << std::bitset<8 * sizeof(int)>(messageBlock[i]) << std::endl;
+    }
 }
 
 
 int main() {
     char block[64]; //64 chars = 512 bits
-    for (int i = 0; get512Block(block, i); i++) {
-        std::cout << "Block " << (i + 1) << std::endl;
-        for (int i = 0; i < 64; i++) {
-            std::cout << block[i];
+    std::ofstream debugLogFP;
+    debugLogFP.open("debug.txt");
+
+    //get512block returns true while there are more block to get
+    get512Block(block, 0);
+    for (int i = 0; i < 64; i++) {
+        debugLogFP << std::bitset<8 * sizeof(char)>(block[i]) << " ";
+        if ((i + 1) % 32 == 0) {
+            debugLogFP << "\n";
         }
-        std::cout << "\n";
     }
 
-    std::cout << a;
+    int messageSch[64];
+    createSchedule(messageSch, block);
+
     return 0;
 }
