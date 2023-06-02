@@ -106,16 +106,35 @@ bool get512Block(char *blockPtr, int blockNumber) {
 
 void createSchedule (int *messageBlock, char *block) {
     //sizeof(int) = 4, so that is 32 bits.
-    //messageBlock[0] = (block[0] << (8 * 3)) + (block[1] << (8 * 2)) + (block[2] << (8 * 1)) + block[4];
+    /*
+        We need to create 32 bit 'words' to fill up the first 16 indexes of the message
+        schedule. For that, we just take the message block in 32 bit chuncks. Each index
+        in the block array is a char. The schedule is an int array because an int = 32 bits.
+        That means we need to append the bits of 4 indexes of the block array for one of the
+        schedule array.
+        For example, if the first four indexes of the block array is:
+        block[0] = 01010100
+        block[1] = 01101000
+        block[2] = 01101001
+        block[3] = 01110011
+        We need append these together for a 32 bit word. Too do that, I use a couple
+        bitwise operations. Here is a visual:
+          01010100 00000000 00000000 00000000 24 bit left shift
+        + 00000000 01101000 00000000 00000000 16 bit left shift
+        + 00000000 00000000 01101001 00000000 8 bit left shift
+        + 00000000 00000000 00000000 01110011 add up all these values
+
+        = schedule[0] = 01010100011010000110100101110011
+
+    */
 
     int i = 0;
     int a = 0;
     while (i < 64) {
-        int z = (block[i++] << (8 * 3));
-        int b = (block[i++] << (8 * 2));
-        int c = (block[i++] << (8 * 1));
-        int d = block[i++];
-        messageBlock[a++] = z + b + c + d;
+        messageBlock[a++] = (block[i++] << (8 * 3)) +
+                            (block[i++] << (8 * 2)) +
+                            (block[i++] << (8 * 1)) +  
+                            block[i++];
     }
 
     
