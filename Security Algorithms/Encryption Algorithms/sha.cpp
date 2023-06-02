@@ -58,7 +58,7 @@ bool get512Block(char *blockPtr, int blockNumber) {
 
         inFile.get(c);
         blockPtr[i] = c;
-        std::cout << "char: " << c << " i: " << i << std::endl;
+        //std::cout << "char: " << c << " i: " << i << std::endl;
     }
 
     //This block is full. No padding needed
@@ -67,7 +67,7 @@ bool get512Block(char *blockPtr, int blockNumber) {
     }
 
     i -= 1; //it grabs the last char twice for some reason
-    std::cout << "i: " << i << std::endl;
+    //std::cout << "i: " << i << std::endl;
     unsigned long length = (unsigned long) (i) * (sizeof(char) * 8) * (blockNumber + 1); //in bits
     //unsinged long is 4 bytes its max value can support files up to 5mb I THINK.
 
@@ -98,7 +98,7 @@ bool get512Block(char *blockPtr, int blockNumber) {
     blockPtr[62] = (length << 16) >> 24;
     blockPtr[63] = (length << 24) >> 24;
 
-    std::cout << "length: " << length << std::endl;
+    //std::cout << "length: " << length << std::endl;
 
     inFile.close();
     return true;
@@ -111,10 +111,10 @@ void createSchedule (int *messageBlock, char *block) {
     int i = 0;
     int a = 0;
     while (i < 64) {
-        int z = (block[i] << (8 * 3));
-        int b = (block[++i] << (8 * 2));
-        int c = (block[++i] << (8 * 1));
-        int d = block[++i];
+        int z = (block[i++] << (8 * 3));
+        int b = (block[i++] << (8 * 2));
+        int c = (block[i++] << (8 * 1));
+        int d = block[i++];
         messageBlock[a++] = z + b + c + d;
     }
 
