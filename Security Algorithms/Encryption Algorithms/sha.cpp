@@ -133,7 +133,9 @@ void createSchedule (unsigned int *messageBlock, unsigned char *block, std::ofst
     for (i = 16; i < 64; i++) {
         //unsigned int s0 = ROTRIGHT(messageBlock[i - 15], 7) ^ ROTRIGHT(messageBlock[i - 15], 18) ^ (messageBlock[i - 15] >> 3);
         //unsigned int s1 = ROTRIGHT(messageBlock[i - 2], 17) ^ ROTRIGHT(messageBlock[i - 2], 19) ^ (messageBlock[i - 2] >> 10);
-        messageBlock[i] = (messageBlock[i - 16] + SIG0(messageBlock[i - 15]) + messageBlock[i - 7] + SIG1(messageBlock[i - 2])) % 32;
+        int ff = SIG0(messageBlock[i - 15]);
+        int gg = SIG1(messageBlock[i - 2]);
+        messageBlock[i] = (messageBlock[i - 16] + SIG0(messageBlock[i - 15]) + messageBlock[i - 7] + SIG1(messageBlock[i - 2]));
         if (i == 16) {
             // #define SIG0(x) (ROTRIGHT(x, 7) ^ ROTRIGHT(x, 18) ^ ((x) >> 3))
 
@@ -146,7 +148,6 @@ void createSchedule (unsigned int *messageBlock, unsigned char *block, std::ofst
            
         }
     }
-    std::cout << SIG0(33) << "\n\n\n";
     // debug code
     debugF << "\nmessage schedule\n";
     for (int j = 0; j < 64; j++)
@@ -193,9 +194,9 @@ void shaTransform(unsigned int * msgSch) {
 
 
     }
-    printf("%02x%02x%02x%02x%02x%02x%02x%02x", h0, h1, h2, h3, h4, h5, h6, h7);
+    //printf("%02x%02x%02x%02x%02x%02x%02x%02x", h0, h1, h2, h3, h4, h5, h6, h7);
 
-    //std::cout << h0 << h1 << h2 << h3 << h4 << h5 << h6 << h7 << std::endl;
+    std::cout << h0 << h1 << h2 << h3 << h4 << h5 << h6 << h7 << std::endl;
 
 }
 
