@@ -20,7 +20,7 @@ unsigned int h7 = 0x5be0cd19;
 
 
 // This only works for one block rn (that is 55 characters)
-bool get512Block(char *blockPtr, int blockNumber) {
+bool get512Block(unsigned char *blockPtr, int blockNumber, std::ofstream& debugF) {
     std::ifstream inFile;
     inFile.open("plaintext.txt");
 
@@ -44,7 +44,6 @@ bool get512Block(char *blockPtr, int blockNumber) {
 
         inFile.get(c);
         blockPtr[i] = c;
-        //std::cout << "char: " << c << " i: " << i << std::endl;
     }
 
     //This block is full. No padding needed
@@ -53,7 +52,6 @@ bool get512Block(char *blockPtr, int blockNumber) {
     }
 
     i -= 1; //it grabs the last char twice for some reason
-    //std::cout << "i: " << i << std::endl;
     unsigned long length = (unsigned long) (i) * (sizeof(char) * 8) * (blockNumber + 1); //in bits
     //unsinged long is 4 bytes its max value can support files up to 5mb I THINK.
 
@@ -84,13 +82,21 @@ bool get512Block(char *blockPtr, int blockNumber) {
     blockPtr[62] = (length << 16) >> 24;
     blockPtr[63] = (length << 24) >> 24;
 
-    //std::cout << "length: " << length << std::endl;
+    //debug code
+    debugF << "512 bit block with '1' appended, padding, and 64 bit length value\n";
+    for (int j = 0; j < 64; j++) {
+        debugF << std::bitset<8 * sizeof(char)>(blockPtr[j]) << "";
+        if ((j + 1) % 4 == 0) {
+            debugF << "\n";
+        }
+    }
+
 
     inFile.close();
     return true;
 }
 
-void createSchedule (int *messageBlock, char *block) {
+void createSchedule (unsigned int *messageBlock, unsigned char *block, std::ofstream& debugF) {
     //sizeof(int) = 4, so that is 32 bits.
     /*
         We need to create 32 bit 'words' to fill up the first 16 indexes of the message
@@ -123,13 +129,26 @@ void createSchedule (int *messageBlock, char *block) {
                             block[i++];
     }
 
-    
-    for (i = 0; i < 16; i++) {
-        std::cout << std::bitset<8 * sizeof(int)>(messageBlock[i]) << std::endl;
+    //first 16 indexes of messageBlock are fill. Now fill up the rest
+    for (i = 16; i < 64; i++) {
+        unsigned int s0 = ROTRIGHT(messageBlock[i - 15], 7) ^ ROTRIGHT(messageBlock[i - 15], 18) ^ (messageBlock[i - 15] >> 3);
+        unsigned int s1 = ROTRIGHT(messageBlock[i - 2], 17) ^ ROTRIGHT(messageBlock[i - 2], 19) ^ (messageBlock[i - 2] >> 10);
+        messageBlock[i] = messageBlock[i - 16] + s0 + messageBlock[i - 7] + s1;
+    }
+
+    // debug code
+    debugF << "\nmessage schedule\n";
+    for (int j = 0; j < 64; j++)
+    {
+        debugF << std::bitset<8 * sizeof(int)>(messageBlock[j]) << " ";
+        if ((j + 1) % 4 == 0)
+        {
+            debugF << "\n";
+        }
     }
 }
 
-void shaTransform(int * msgSch) {
+void shaTransform(unsigned int * msgSch) {
     unsigned int a = h0;
     unsigned int b = h1;
     unsigned int c = h2;
@@ -172,24 +191,19 @@ void shaTransform(int * msgSch) {
 
 
 int main() {
-    char block[64]; //64 chars = 512 bits
+    unsigned char block[64]; //64 chars = 512 bits
     std::ofstream debugLogFP;
     debugLogFP.open("debug.txt");
 
     //get512block returns true while there are more block to get
-    get512Block(block, 0);
-    for (int i = 0; i < 64; i++) {
-        debugLogFP << std::bitset<8 * sizeof(char)>(block[i]) << " ";
-        if ((i + 1) % 32 == 0) {
-            debugLogFP << "\n";
-        }
-    }
+    get512Block(block, 0, debugLogFP);
 
-    int messageSch[64];
-    createSchedule(messageSch, block);
+
+    unsigned int messageSch[64];
+    createSchedule(messageSch, block, debugLogFP);
     shaTransform(messageSch);
 
     //so there three function would be called until we run out of data. then print out the inital h values
-
+    debugLogFP.close();
     return 0;
 }

@@ -189,13 +189,6 @@ string SHA256(char *data)
 }
 
 int main() {
-    //std::string h = "";
-    //std::cout << sizeof((char)0) << endl;
-    char x[2];
-    int s = 77777777777;
-    x[0] = 'a';
-    x[1] = 'b';
-    x[0] = s;
-
-    std::cout << x[0] << " " << x[1] << "\n";
+    char input[] = "abcc";
+    std::cout << SHA256(input);
 }
