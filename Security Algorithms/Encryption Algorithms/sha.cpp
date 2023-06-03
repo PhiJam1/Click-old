@@ -8,7 +8,7 @@
 #include "sha.h"
 
 //Inital hash values
-unsigned int h0 = 0x6a09e66;
+unsigned int h0 = 0x6a09e667;
 unsigned int h1 = 0xbb67ae85;
 unsigned int h2 = 0x3c6ef372;
 unsigned int h3 = 0xa54ff53a;
@@ -128,23 +128,31 @@ void createSchedule (unsigned int *messageBlock, unsigned char *block, std::ofst
                             (block[i++] << (8 * 1)) +  
                             block[i++];
     }
-
-    //first 16 indexes of messageBlock are fill. Now fill up the rest
+    // https://www.youtube.com/watch?v=f9EbD6iY9zI&ab_channel=learnmeabitcoin
+    // first 16 indexes of messageBlock are fill. Now fill up the rest
     for (i = 16; i < 64; i++) {
-        unsigned int s0 = ROTRIGHT(messageBlock[i - 15], 7) ^ ROTRIGHT(messageBlock[i - 15], 18) ^ (messageBlock[i - 15] >> 3);
-        unsigned int s1 = ROTRIGHT(messageBlock[i - 2], 17) ^ ROTRIGHT(messageBlock[i - 2], 19) ^ (messageBlock[i - 2] >> 10);
-        messageBlock[i] = messageBlock[i - 16] + s0 + messageBlock[i - 7] + s1;
-    }
+        //unsigned int s0 = ROTRIGHT(messageBlock[i - 15], 7) ^ ROTRIGHT(messageBlock[i - 15], 18) ^ (messageBlock[i - 15] >> 3);
+        //unsigned int s1 = ROTRIGHT(messageBlock[i - 2], 17) ^ ROTRIGHT(messageBlock[i - 2], 19) ^ (messageBlock[i - 2] >> 10);
+        messageBlock[i] = (messageBlock[i - 16] + SIG0(messageBlock[i - 15]) + messageBlock[i - 7] + SIG1(messageBlock[i - 2])) % 32;
+        if (i == 16) {
+            // #define SIG0(x) (ROTRIGHT(x, 7) ^ ROTRIGHT(x, 18) ^ ((x) >> 3))
 
+            debugF << "ROTRIGHT(messageBlock[i - 15], 7): " << std::bitset<8 * sizeof(int)>(ROTRIGHT(messageBlock[i - 15], 7)) << "\n";
+            debugF << "ROTRIGHT(messageBlock[i - 15], 18): " << std::bitset<8 * sizeof(int)>(ROTRIGHT(messageBlock[i - 15], 18)) << "\n";
+            debugF << "Right shift(messageBlock[i - 15], 3): " << std::bitset<8 * sizeof(int)>(messageBlock[i - 15] >> 3) << "\n";
+
+            debugF << "SIG0 on i = 16:  ";
+            debugF << std::bitset<8 * sizeof(int)>(SIG0(messageBlock[i - 15])) << "\n\n";
+           
+        }
+    }
+    std::cout << SIG0(33) << "\n\n\n";
     // debug code
     debugF << "\nmessage schedule\n";
     for (int j = 0; j < 64; j++)
     {
-        debugF << std::bitset<8 * sizeof(int)>(messageBlock[j]) << " ";
-        if ((j + 1) % 4 == 0)
-        {
-            debugF << "\n";
-        }
+        debugF << "W[" << j << "] = ";
+        debugF << std::bitset<8 * sizeof(int)>(messageBlock[j]) << "\n";
     }
 }
 
@@ -185,7 +193,9 @@ void shaTransform(unsigned int * msgSch) {
 
 
     }
-    std::cout << h0 << h1 << h2 << h3 << h4 << h5 << h6 << h7 << std::endl;
+    printf("%02x%02x%02x%02x%02x%02x%02x%02x", h0, h1, h2, h3, h4, h5, h6, h7);
+
+    //std::cout << h0 << h1 << h2 << h3 << h4 << h5 << h6 << h7 << std::endl;
 
 }
 
