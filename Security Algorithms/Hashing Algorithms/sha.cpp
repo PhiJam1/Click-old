@@ -7,7 +7,7 @@
 
 #include "sha.h"
 
-//Inital hash values
+//Inital register values
 unsigned int h0 = 0x6a09e667;
 unsigned int h1 = 0xbb67ae85;
 unsigned int h2 = 0x3c6ef372;
@@ -19,7 +19,18 @@ unsigned int h7 = 0x5be0cd19;
 
 
 
-// This only works for one block rn (that is 55 characters)
+/*
+    Function that will grab 512 bit chuncks from a file.
+    It will return false when the file has been fully parsed.
+    
+    blockPtr is a pointer to a char array that will hold the raw
+    message data and padding.
+
+    blockNumber is a counter of how many 512 bit blocks have been parsed.
+    It is used to move the file pointer to the correct location and to
+    determine the length of the total message.
+
+*/
 bool get512Block(unsigned char *blockPtr, int blockNumber, std::ofstream& debugF) {
     std::ifstream inFile;
     inFile.open("plaintext.txt");
@@ -30,7 +41,7 @@ bool get512Block(unsigned char *blockPtr, int blockNumber, std::ofstream& debugF
         return false;
     }
 
-    //Move to the next block, 64 chars = 512 bits. 
+    //Move to the next block, 64 chars = 512 bits.
     inFile.seekg(64 * blockNumber, std::ios::cur);
 
     char c = 'a';
@@ -96,7 +107,14 @@ bool get512Block(unsigned char *blockPtr, int blockNumber, std::ofstream& debugF
     return true;
 }
 
-void createSchedule (unsigned int *messageBlock, unsigned char *block, std::ofstream& debugF) {
+/*
+    This function will take the padded raw data array and create the 32 bit
+    message schedule.
+    msgSchdule is a pointer to the int array that will hold each 32 bit word.
+    msgBlock is the original raw/padded data.
+*/
+
+void createSchedule (unsigned int *msgSchedule, unsigned char *msgBlock, std::ofstream& debugF) {
     //sizeof(int) = 4, so that is 32 bits.
     /*
         We need to create 32 bit 'words' to fill up the first 16 indexes of the message
@@ -123,43 +141,56 @@ void createSchedule (unsigned int *messageBlock, unsigned char *block, std::ofst
     int i = 0;
     int a = 0;
     while (i < 64) {
-        messageBlock[a++] = (block[i++] << (8 * 3)) +
-                            (block[i++] << (8 * 2)) +
-                            (block[i++] << (8 * 1)) +  
-                            block[i++];
+        msgSchedule[a++] = (msgBlock[i++] << (8 * 3)) + (msgBlock[i++] << (8 * 2)) +
+                            (msgBlock[i++] << (8 * 1)) +  msgBlock[i++];
     }
-    // https://www.youtube.com/watch?v=f9EbD6iY9zI&ab_channel=learnmeabitcoin
-    // first 16 indexes of messageBlock are fill. Now fill up the rest
+
+    /*  first 16 indexes of messageBlock are full
+        The remain 16-63 indexes are fill according 
+        to the following algorithm:
+        T[i] = T[i - 16] + SIG0(T[i - 15]) + T[i - 7] + SIG1(T[i - 2])
+        SIG0 and SIG1 are #defined macros found in sha.h
+    */
     for (i = 16; i < 64; i++) {
-        //unsigned int s0 = ROTRIGHT(messageBlock[i - 15], 7) ^ ROTRIGHT(messageBlock[i - 15], 18) ^ (messageBlock[i - 15] >> 3);
-        //unsigned int s1 = ROTRIGHT(messageBlock[i - 2], 17) ^ ROTRIGHT(messageBlock[i - 2], 19) ^ (messageBlock[i - 2] >> 10);
-        int ff = SIG0(messageBlock[i - 15]);
-        int gg = SIG1(messageBlock[i - 2]);
-        messageBlock[i] = (messageBlock[i - 16] + SIG0(messageBlock[i - 15]) + messageBlock[i - 7] + SIG1(messageBlock[i - 2]));
+        msgSchedule[i] = msgSchedule[i - 16] +
+                         SIG0(msgSchedule[i - 15]) +
+                         msgSchedule[i - 7] +
+                         SIG1(msgSchedule[i - 2]);
+        
+        //debug info
         if (i == 16) {
             // #define SIG0(x) (ROTRIGHT(x, 7) ^ ROTRIGHT(x, 18) ^ ((x) >> 3))
 
-            debugF << "ROTRIGHT(messageBlock[i - 15], 7): " << std::bitset<8 * sizeof(int)>(ROTRIGHT(messageBlock[i - 15], 7)) << "\n";
-            debugF << "ROTRIGHT(messageBlock[i - 15], 18): " << std::bitset<8 * sizeof(int)>(ROTRIGHT(messageBlock[i - 15], 18)) << "\n";
-            debugF << "Right shift(messageBlock[i - 15], 3): " << std::bitset<8 * sizeof(int)>(messageBlock[i - 15] >> 3) << "\n";
+            debugF << "ROTRIGHT(messageBlock[i - 15], 7): " << std::bitset<8 * sizeof(int)>(ROTRIGHT(msgSchedule[i - 15], 7)) << "\n";
+            debugF << "ROTRIGHT(messageBlock[i - 15], 18): " << std::bitset<8 * sizeof(int)>(ROTRIGHT(msgSchedule[i - 15], 18)) << "\n";
+            debugF << "Right shift(messageBlock[i - 15], 3): " << std::bitset<8 * sizeof(int)>(msgSchedule[i - 15] >> 3) << "\n";
 
             debugF << "SIG0 on i = 16:  ";
-            debugF << std::bitset<8 * sizeof(int)>(SIG0(messageBlock[i - 15])) << "\n\n";
+            debugF << std::bitset<8 * sizeof(int)>(SIG0(msgSchedule[i - 15])) << "\n\n";
            
         }
     }
 
-    // debug code
+    // debug info
     debugF << "\nmessage schedule\n";
     for (int j = 0; j < 64; j++)
     {
         debugF << "W[" << j << "] = ";
-        debugF << std::bitset<8 * sizeof(int)>(messageBlock[j]) << "\n";
+        debugF << std::bitset<8 * sizeof(int)>(msgSchedule[j]) << "\n";
     }
 }
 
-void shaTransform(unsigned int * msgSch) {
 
+/*
+    This function will take a given message schedule
+    and preform the compression operation and update the
+    registers.
+    msgSchedule is the message schedule developed in createSchedule()
+
+*/
+void shaTransform(unsigned int * msgSchedule) {
+    
+    //Set up the working variables
     unsigned int t1;
     unsigned int t2;
 
@@ -172,9 +203,16 @@ void shaTransform(unsigned int * msgSch) {
     unsigned int g = h6;
     unsigned int h = h7;
 
+    /*
+        This is the main compression function. It feeds in input
+        from the round contants (k, found in sha.h), the regesiters,
+        and the data from the schedule. It is manipulated according as
+        shown.
+        EP0, EP1, CH, and MAJ are #defined macros that preform bitwise operations.
+    */
     for (int i = 0; i < 64; ++i)
     {
-        t1 = h + EP1(e) + CH(e, f, g) + k[i] + msgSch[i];
+        t1 = h + EP1(e) + CH(e, f, g) + k[i] + msgSchedule[i];
         t2 = EP0(a) + MAJ(a, b, c);
         h = g;
         g = f;
@@ -186,6 +224,7 @@ void shaTransform(unsigned int * msgSch) {
         a = t1 + t2;
     }
 
+    //Update the shift registers
     h0 += a;
     h1 += b;
     h2 += c;
@@ -195,26 +234,30 @@ void shaTransform(unsigned int * msgSch) {
     h6 += g;
     h7 += h;
     
-    printf("%02x%02x%02x%02x%02x%02x%02x%02x", h0, h1, h2, h3, h4, h5, h6, h7);
-    //std::cout << h0 << h1 << h2 << h3 << h4 << h5 << h6 << h7 << std::endl;
 
 }
 
 
 int main() {
-    unsigned char block[64]; //64 chars = 512 bits
+    //64 chars = 512 bits
+    //This is the size of one sha256 message block
+    unsigned char block[64];
     std::ofstream debugLogFP;
     debugLogFP.open("debug.txt");
 
-    //get512block returns true while there are more block to get
+    //get512block returns true while there is more data in the file
     get512Block(block, 0, debugLogFP);
 
+    //This is the message schedule array that will hold the 32 bit words.
+    // sizeof(int) = 4 bytes = 32 bits
+    unsigned int msgSchedule[64];
+    createSchedule(msgSchedule, block, debugLogFP);
+    shaTransform(msgSchedule);
 
-    unsigned int messageSch[64];
-    createSchedule(messageSch, block, debugLogFP);
-    shaTransform(messageSch);
+    //The final hash is the concatenation of the final values of the register variables
+    printf("%02x%02x%02x%02x%02x%02x%02x%02x\n", h0, h1, h2, h3, h4, h5, h6, h7);
 
-    //so there three function would be called until we run out of data. then print out the inital h values
+
     debugLogFP.close();
     return 0;
 }

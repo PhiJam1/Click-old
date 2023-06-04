@@ -10,6 +10,12 @@
 #define SIG0(x) (ROTRIGHT(x, 7) ^ ROTRIGHT(x, 18) ^ ((x) >> 3))
 #define SIG1(x) (ROTRIGHT(x, 17) ^ ROTRIGHT(x, 19) ^ ((x) >> 10))
 
+// Function Prototypes 
+bool get512Block(unsigned char *, int, std::ofstream&);
+void createSchedule (unsigned int *, unsigned char *, std::ofstream&);
+void shaTransform(unsigned int *);
+
+
 //Inital hash values
 extern unsigned int h0;
 extern unsigned int h1;
