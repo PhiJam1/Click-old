@@ -1,9 +1,9 @@
 // I took most of this off of geeksforgeeks. Our challenge will be
 // to find a way to make the private key connect to the user's password.
-//That probably means we calculate the private key before the public key
+// That probably means we calculate the private key before the public key
 // - if that even possible
 #include <bits/stdc++.h>
- 
+
 //Use the euclidean algorithm for gcd
 int gcd(int x, int y) {
     if (x < y) {
