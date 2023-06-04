@@ -1,5 +1,7 @@
 #ifndef sha_H
 #define sha_H
+#include <fstream>
+
 #define ROTLEFT(a, b) (((a) << (b)) | ((a) >> (32 - (b))))
 #define ROTRIGHT(a, b) (((a) >> (b)) | ((a) << (32 - (b))))
 
