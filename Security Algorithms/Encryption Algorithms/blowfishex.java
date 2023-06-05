@@ -4,7 +4,7 @@
 
 import java.util.*;
 
-public class Main {
+public class blowfishex {
 
 	// Substitution boxes each string is a 32 bit hexadecimal value.
 	String S[][]
@@ -363,7 +363,7 @@ public class Main {
 		return left + right;
 	}
 
-	Main()
+	blowfishex()
 	{
 		// storing 2^32 in modVal
 		//(<<1 is equivalent to multiply by 2)
@@ -382,7 +382,7 @@ public class Main {
 
 	public static void main(String args[])
 	{
-		new Main();
+		new blowfishex();
 	}
 }
 
