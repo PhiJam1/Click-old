@@ -65,22 +65,36 @@ bool getPlaintextBlock(unsigned char *blockPtr, int blockNumber, int padding) {
 }
 
 
-void generateSubKeys(int *pBoxes) {
-
-}
 
 void encrypt(unsigned char *block) {
-    for (int i = 0; i < 16; i++) [
+    for (int i = 0; i < 16; i++) {
         //create a left and right
+        unsigned char left[] = {block[0], block[1], block[2], block[3]};
+        unsigned char right[] = {block[4], block[5], block[6], block[7]};
+         
         //left = left ^ P[i];
-
+        for (int j = 0; j < 4; j++) {
+            left[j] ^= P[i][j];
+        }
 
         //temp = function(left)
 
-        //right  = temp ^ right
 
-        swap(right, left);
-    ]
+
+        //right  = temp ^ right
+        for (int j = 0; j < 4; j++) {
+            //right[j] ^= temp[j];
+        }
+
+        
+        //swap
+        unsigned char mid[4];
+        for (int j = 0; j < 4; j++) {
+            mid[j] = left[j];
+            left[j] = right[j];
+            right[j] = mid[j];
+        }
+    }
 
 }
 

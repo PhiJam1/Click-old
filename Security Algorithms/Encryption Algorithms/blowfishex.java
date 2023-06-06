@@ -1,7 +1,5 @@
 // Java Program to demonstrate Blowfish encryption
 
-//this is all from geeksforgeeks and to be used as a reference. also its in java
-
 import java.util.*;
 
 public class blowfishex {
@@ -319,12 +317,12 @@ public class blowfishex {
 
 			// xor-ing 32-bit parts of the key
 			// with initial subkeys.
-			P[i] = xor(P[i], key.substring(j, j + 4));
+			P[i] = xor(P[i], key.substring(j, j + 8));
 
 			System.out.println("subkey "
 							+ (i + 1) + ": "
 							+ P[i]);
-			j = (j + 4) % key.length();
+			j = (j + 8) % key.length();
 		}
 	}
 
@@ -335,6 +333,7 @@ public class blowfishex {
 		left = plainText.substring(0, 8);
 		right = plainText.substring(8, 16);
 		left = xor(left, P[time]);
+		System.out.println(left);
 
 		// output from F function
 		String fOut = f(left);
@@ -370,7 +369,7 @@ public class blowfishex {
 		for (int i = 0; i < 32; i++)
 			modVal = modVal << 1;
 
-		String plainText = "123456abcd132536";
+		String plainText = "123456abcdhhh536";
 		String key = "aabb09182736ccdd";
 
 		keyGenerate(key);
