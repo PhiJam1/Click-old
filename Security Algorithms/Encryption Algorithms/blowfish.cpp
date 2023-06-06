@@ -69,7 +69,18 @@ void generateSubKeys(int *pBoxes) {
 
 }
 
-void encrypt(std::string plaintext) {
+void encrypt(unsigned char *block) {
+    for (int i = 0; i < 16; i++) [
+        //create a left and right
+        //left = left ^ P[i];
+
+
+        //temp = function(left)
+
+        //right  = temp ^ right
+
+        swap(right, left);
+    ]
 
 }
 
@@ -88,16 +99,8 @@ int main() {
     unsigned char block[8];
     int padding = 0;
     getPlaintextBlock(block, 0, padding);
-    std::cout << block[0] << block[7] << "\n";
+
+    encrypt(block);
 
 
-
-
-
-
-    //generate subkeys
-
-    //do 16 rounds of encryption
-
-    //output results
 }
