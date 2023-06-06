@@ -319,12 +319,12 @@ public class blowfishex {
 
 			// xor-ing 32-bit parts of the key
 			// with initial subkeys.
-			P[i] = xor(P[i], key.substring(j, j + 8));
+			P[i] = xor(P[i], key.substring(j, j + 4));
 
 			System.out.println("subkey "
 							+ (i + 1) + ": "
 							+ P[i]);
-			j = (j + 8) % key.length();
+			j = (j + 4) % key.length();
 		}
 	}
 
