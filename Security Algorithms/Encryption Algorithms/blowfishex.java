@@ -295,12 +295,7 @@ public class blowfishex {
 		for (int i = 0; i < 8; i += 2) {
 			// the column number for S-box
 			// is 8-bit value(8*4 = 32 bit plain text)
-			long col
-				= Long.parseUnsignedLong(
-					hexToBin(
-						plainText
-							.substring(i, i + 2)),
-					2);
+			long col = Long.parseUnsignedLong(hexToBin(plainText.substring(i, i + 2)), 2);
 			a[i / 2] = S[i / 2][(int)col];
 		}
 		ans = addBin(a[0], a[1]);

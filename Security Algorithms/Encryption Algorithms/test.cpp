@@ -1,6 +1,10 @@
 #include <iostream>
 
 int main() {
-    int a = 0xFF ^ 3;
-    std::cout << a << std::endl;
+    unsigned char left[] = {0,1,3,4};
+    unsigned char right[] = {5, 6, 7, 8};
+
+    unsigned char *mid = left;
+    left = right;
+    
 }
