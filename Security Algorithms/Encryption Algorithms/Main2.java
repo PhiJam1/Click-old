@@ -1,12 +1,12 @@
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <bits/stdc++.h>
-#include <sstream>
+// Java Program to demonstrate Blowfish encryption
+
+import java.util.*;
+
+public class Main2 {
 
 	// Substitution boxes each string is a 32 bit hexadecimal value.
-	std::string S[4][256] = { 
-            { "d1310ba6", "98dfb5ac", "2ffd72db", "d01adfb7", "b8e1afed",
+	String S[][]
+		= { { "d1310ba6", "98dfb5ac", "2ffd72db", "d01adfb7", "b8e1afed",
 			"6a267e96", "ba7c9045", "f12c7f99", "24a19947", "b3916cf7",
 			"0801f2e2", "858efc16", "636920d8", "71574e69", "a458fea3",
 			"f4933d7e", "0d95748f", "728eb658", "718bcd58", "82154aee",
@@ -215,137 +215,173 @@
 			"3f09252d", "c208e69f", "b74e6132", "ce77e25b", "578fdfe3",
 			"3ac372e6" } };
 
+	// Subkeys initialisation with digits of pi.
+	String P[] = { "243f6a88", "85a308d3", "13198a2e", "03707344", "a4093822",
+				"299f31d0", "082efa98", "ec4e6c89", "452821e6", "38d01377",
+				"be5466cf", "34e90c6c", "c0ac29b7", "c97c50dd", "3f84d5b5",
+				"b5470917", "9216d5d9", "8979fb1b" };
 
-// Subkeys initialisation with digits of pi.
- std::string P[] = { "243f6a88", "85a308d3", "13198a2e", "03707344", "a4093822",
-                   "299f31d0", "082efa98", "ec4e6c89", "452821e6", "38d01377",
-                   "be5466cf", "34e90c6c", "c0ac29b7", "c97c50dd", "3f84d5b5",
-                   "b5470917", "9216d5d9", "8979fb1b" };
+	// to store 2^32(for addition modulo 2^32).
+	long modVal = 1;
 
+	// to convert hexadecimal to binary.
+	private String hexToBin(String plainText)
+	{
+		String binary = "";
+		Long num;
+		String binary4B;
+		int n = plainText.length();
+		for (int i = 0; i < n; i++) {
 
-//function that will xor two string hex values
-std::string XOR(std::string s1, std::string s2) {
-    unsigned int j = stol(s1, 0, 16) ^ stol(s2, 0, 16);
-    std::stringstream sstream;
-    sstream << std::hex << j;
-    std::string result = sstream.str();
-    return result;
+			num = Long.parseUnsignedLong(
+				plainText.charAt(i) + "", 16);
+			binary4B = Long.toBinaryString(num);
+
+			// each value in hexadecimal is 4 bits in binary.
+			binary4B = "0000" + binary4B;
+
+			binary4B = binary4B.substring(binary4B.length() - 4);
+			binary += binary4B;
+		}
+		return binary;
+	}
+
+	// convert from binary to hexadecimal.
+	private String binToHex(String plainText)
+	{
+
+		long num = Long.parseUnsignedLong(plainText, 2);
+		String hexa = Long.toHexString(num);
+		while (hexa.length() < (plainText.length() / 4))
+
+			// maintain output length same length
+			// as input by appending leading zeroes.
+			hexa = "0" + hexa;
+
+		return hexa;
+	}
+
+	// xor two hexadecimal strings of the same length.
+	private String xor(String a, String b)
+	{
+		a = hexToBin(a);
+		b = hexToBin(b);
+		String ans = "";
+		for (int i = 0; i < a.length(); i++)
+			ans += (char)(((a.charAt(i) - '0')
+						^ (b.charAt(i) - '0'))
+						+ '0');
+		ans = binToHex(ans);
+		return ans;
+	}
+
+	// addition modulo 2^32 of two hexadecimal strings.
+	private String addBin(String a, String b)
+	{
+		String ans = "";
+		long n1 = Long.parseUnsignedLong(a, 16);
+		long n2 = Long.parseUnsignedLong(b, 16);
+		n1 = (n1 + n2) % modVal;
+		ans = Long.toHexString(n1);
+		ans = "00000000" + ans;
+		return ans.substring(ans.length() - 8);
+	}
+
+	// function F explained above.
+	private String f(String plainText)
+	{
+		String a[] = new String[4];
+		String ans = "";
+		for (int i = 0; i < 8; i += 2) {
+			// the column number for S-box
+			// is 8-bit value(8*4 = 32 bit plain text)
+			long col
+				= Long.parseUnsignedLong(
+					hexToBin(
+						plainText
+							.substring(i, i + 2)),
+					2);
+			a[i / 2] = S[i / 2][(int)col];
+		}
+		ans = addBin(a[0], a[1]);
+		ans = xor(ans, a[2]);
+		ans = addBin(ans, a[3]);
+		return ans;
+	}
+
+	// generate subkeys.
+	private void keyGenerate(String key)
+	{
+		int j = 0;
+		for (int i = 0; i < P.length; i++) {
+
+			// xor-ing 32-bit parts of the key
+			// with initial subkeys.
+			P[i] = xor(P[i], key.substring(j, j + 8));
+
+			System.out.println("subkey "
+							+ (i + 1) + ": "
+							+ P[i]);
+			j = (j + 8) % key.length();
+		}
+	}
+
+	// round function
+	private String round(int time, String plainText)
+	{
+		String left, right;
+		left = plainText.substring(0, 8);
+		right = plainText.substring(8, 16);
+		left = xor(left, P[time]);
+
+		// output from F function
+		String fOut = f(left);
+
+		right = xor(fOut, right);
+
+		System.out.println(
+			"round " + time + ": "
+			+ right + left + " fout: " + fOut);
+
+		// swap left and right
+		return right + left;
+	}
+
+	// encryption
+	private String encrypt(String plainText)
+	{
+		for (int i = 0; i < 16; i++)
+			plainText = round(i, plainText);
+
+		// postprocessing
+		String right = plainText.substring(0, 8);
+		String left = plainText.substring(8, 16);
+		right = xor(right, P[16]);
+		left = xor(left, P[17]);
+		return left + right;
+	}
+
+	Main2()
+	{
+		// storing 2^32 in modVal
+		//(<<1 is equivalent to multiply by 2)
+		for (int i = 0; i < 32; i++)
+			modVal = modVal << 1;
+
+		String plainText = "6279746562797465";
+		String key = "61626364";
+
+		keyGenerate(key);
+
+		System.out.println("-----Encryption-----");
+		String cipherText = encrypt(plainText);
+		System.out.println("Cipher Text: " + cipherText);
+	}
+
+	public static void main(String args[])
+	{
+		new Main2();
+	}
 }
 
-/*
-    Function will accept a 32 bit hex key.
-    It will xor with the values in P array.
-*/
-void keyInit(std::string key) {
-    for (int i = 0; i < 18; i++) {
-        P[i] = XOR(P[i], key);
-        std::cout << "Round " << (i + 1) << ": " << P[i] << std::endl;
-    }
-
-}
-
-std::string f(std::string left) {
-    int b1 = stoi(left.substr(0,2), 0, 16);
-    int b2 = stoi(left.substr(2,2), 0, 16);
-    int b3 = stoi(left.substr(4,2), 0, 16);
-    int b4 = stoi(left.substr(6,2), 0, 16);
-    int val1 = stol(S[0][b1], 0, 16);
-    int val2 = stol(S[1][b2], 0, 16);
-    int val3 = stol(S[2][b3], 0, 16);
-    int val4 = stol(S[3][b4], 0, 16);
-
-    int ans = ((((val1 + val2) % 4294967296) ^ val3) + val4) % 4294967296;
-    std::ostringstream ss;
-    ss << std::hex << ans;
-    std::string result = ss.str();
-
-    return result;
-}
-
-std::string encrypt(std::string plaintext, std::string key) {
-    std::string left;
-    std::string right;
-    for (int i = 0; i < 16; i++) {
-        //do each round
-
-        //set left and right
-        left = plaintext.substr(0, 8);
-        right = plaintext.substr(8, 8);
-
-        //left xor with p[i]
-        left = XOR(left, P[i]);
-
-        //get function output on f
-        std::string temp = f(left);
-
-        //right xor function output
-        right = XOR(temp, right);
-
-        //swap right and left
-        plaintext = right + left;
-        std::cout << "Round " << (i) << ": " << plaintext << " fout: " << temp << std::endl; 
-    }
-    right = plaintext.substr(0, 8);
-    left = plaintext.substr(8, 8);
-
-    right = XOR(right, P[16]);
-    left = XOR(left, P[17]);
-    return left + right;
-
-}
-
-std::string decrypt(std::string ciphertext, std::string key) {
-    std::string left;
-    std::string right;
-    for (int i = 17; i > 1; i--) {
-        //do each round
-
-        //set left and right
-        left = ciphertext.substr(0, 8);
-        right = ciphertext.substr(8, 8);
-
-        //left xor with p[i]
-        left = XOR(left, P[i]);
-
-        //get function output on f
-        std::string temp = f(left);
-
-        //right xor function output
-        right = XOR(temp, right);
-
-        //swap right and left
-        ciphertext = right + left;
-        std::cout << "Round " << (i) << ": " << ciphertext << std::endl; 
-    }
-    right = ciphertext.substr(0, 8);
-    left = ciphertext.substr(8, 8);
-
-    right = XOR(right, P[1]);
-    left = XOR(left, P[0]);
-    return left + right;
-
-}
-//currently only works for 64 bits (8 char)
-int main() {
-    /*
-        For testing, I have the plaintext as 8 bytes of data in hex.
-        For use, we'd grab 8 bytes at a time and turn to hex and feed
-        to functions;
-    */
-    std::string plaintext = "6279746562797465"; //64 bits (8 bytes), meant to be used as hex
-    std::string key = "61626364"; //32 bits, these are meant to be used as hex
-
-    keyInit(key);
-
-    std::string ciphertext = encrypt(plaintext, key);
-
-    std::cout << "cipher text: " << ciphertext << std::endl;
-
-    //std::string ciphertext  = "e742800b56d93ff";
-    //keyInit(key);
-    //std::string plaintext = decrypt(ciphertext, key);
-    //std::cout << plaintext << std::endl;
-    
-    return 0;
-
-}
+// This code is contributed by AbhayBhat
