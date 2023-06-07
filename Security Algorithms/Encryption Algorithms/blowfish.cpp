@@ -275,25 +275,6 @@ std::string f(std::string left) {
 
     return result;
 }
-std::string af(std::string left) {
-    std::string a[4];
-    std::string ans = "";
-    for (int i = 0; i < 8; i += 2) {
-        // the column number for S-box
-        // is 8-bit value(8*4 = 32 bit plain text)
-        long col = stol(left.substr(i, 2), 0, 16);
-        a[i / 2] = S[i / 2][(int)col];
-    }
-    int temp = stol(a[0], 0, 16) + stol(a[1], 0, 16);
-    std::ostringstream ss;
-    ss << std::hex << temp;
-    ans = ss.str();
-    ans = XOR(ans, a[2]);
-    temp = stol(ans, 0, 16) + stol(a[3], 0, 16);
-    ss << std::hex << temp;
-    ans = ss.str();
-    return ans;
-}
 
 
 std::string encrypt(std::string plaintext, std::string key) {
@@ -335,32 +316,39 @@ std::string encrypt(std::string plaintext, std::string key) {
     return left + right;
 
 }
-
-std::string decrypt(std::string ciphertext, std::string key) {
+std::string decrypt(std::string plaintext, std::string key) {
     std::string left;
     std::string right;
     for (int i = 17; i > 1; i--) {
+        std::cout << "\n\n-----Round " << (i + 1 ) << " Start ------------\n";
         //do each round
 
         //set left and right
-        left = ciphertext.substr(0, 8);
-        right = ciphertext.substr(8, 8);
+        left = plaintext.substr(0, 8);
+        right = plaintext.substr(8, 8);
+        std::cout << "1. Set L&R values-> left: " << left << " Right: " << right << std::endl;
 
         //left xor with p[i]
         left = XOR(left, P[i]);
+        std::cout << "2. Left xor: " << left << std::endl;
+
 
         //get function output on f
         std::string temp = f(left);
+        std::cout << "3. left into f: " << temp << std::endl;
 
         //right xor function output
         right = XOR(temp, right);
+        std::cout << "4. fout xor right: " << right << std::endl; 
 
         //swap right and left
-        ciphertext = right + left;
-        std::cout << "Round " << (i) << ": " << ciphertext << std::endl; 
+        plaintext = right + left;
+        std::cout << "Final plaintext " << plaintext << std::endl; 
+        std::cout << "-----Round " << (i + 1) << " End ------------\n";
+
     }
-    right = ciphertext.substr(0, 8);
-    left = ciphertext.substr(8, 8);
+    right = plaintext.substr(0, 8);
+    left = plaintext.substr(8, 8);
 
     right = XOR(right, P[1]);
     left = XOR(left, P[0]);
@@ -374,12 +362,12 @@ int main() {
         For use, we'd grab 8 bytes at a time and turn to hex and feed
         to functions;
     */
-    std::string plaintext = "6279746562797465"; //64 bits (8 bytes), meant to be used as hex
+    std::string plaintext = "b0a33772e9e0dcf7"; //64 bits (8 bytes), meant to be used as hex
     std::string key = "61626364"; //32 bits, these are meant to be used as hex
 
     keyInit(key);
 
-    std::string ciphertext = encrypt(plaintext, key);
+    std::string ciphertext = decrypt(plaintext, key);
 
     std::cout << "cipher text: " << ciphertext << std::endl;
 
