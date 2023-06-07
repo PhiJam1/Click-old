@@ -224,11 +224,15 @@
 
 
 //function that will xor two string hex values
+//todo: NEED TO PAD ENOUGH 0S IN FRONT
 std::string XOR(std::string s1, std::string s2) {
     unsigned int j = stol(s1, 0, 16) ^ stol(s2, 0, 16);
     std::stringstream sstream;
     sstream << std::hex << j;
     std::string result = sstream.str();
+    while (result.size() < 8) {
+        result = "0" + result;
+    }
     return result;
 }
 
@@ -243,7 +247,12 @@ void keyInit(std::string key) {
     }
 
 }
-
+/*
+    Issue is here. When left has a leading 0, it is left out
+    so the substr will not grab that leading 0. we need to pad
+    the front with 0s of left and right everywhere.
+    TODO: NEED TO PAD ENOUGH 0S
+*/
 std::string f(std::string left) {
     long b1 = stol(left.substr(0,2), 0, 16);
     long b2 = stol(left.substr(2,2), 0, 16);
@@ -260,6 +269,9 @@ std::string f(std::string left) {
     std::ostringstream ss;
     ss << std::hex << ans;
     std::string result = ss.str();
+    while (result.size() < 8) {
+        result = "0" + result;
+    }
 
     return result;
 }
