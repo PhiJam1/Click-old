@@ -301,9 +301,10 @@ public class Main2 {
 						plainText
 							.substring(i, i + 2)),
 					2);
+            System.out.print("a: " + col +  " ");
 			a[i / 2] = S[i / 2][(int)col];
 		}
-        System.out.println("a1: "+ a[0] + " a2: " + a[1] + " a3: " + a[2] + " a4: " + a[3]);
+        System.out.println("\na1: "+ a[0] + " a2: " + a[1] + " a3: " + a[2] + " a4: " + a[3]);
 		ans = addBin(a[0], a[1]);
 		ans = xor(ans, a[2]);
 		ans = addBin(ans, a[3]);

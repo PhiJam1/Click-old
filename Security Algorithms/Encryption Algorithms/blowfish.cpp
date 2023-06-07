@@ -253,7 +253,7 @@ std::string f(std::string left) {
     long val2 = stol(S[1][b2], 0, 16);
     long val3 = stol(S[2][b3], 0, 16);
     long val4 = stol(S[3][b4], 0, 16);
-    std::cout << "a1: " << S[0][b1] << " a2: " << S[1][b2] << " a3: " << S[2][b3] << " a4: " << S[3][b4] << std::endl;
+    std::cout << "a1: " << b1 << " a2: " << b2 << " a3: " << b3 << " a4: " << b4 << std::endl;
 
 
     long ans = ((((val1 + val2) % 4294967296) ^ val3) + val4) % 4294967296;
