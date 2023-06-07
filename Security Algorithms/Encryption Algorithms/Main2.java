@@ -329,21 +329,31 @@ public class Main2 {
 	// round function
 	private String round(int time, String plainText)
 	{
+        System.out.print("\n\n-----Round " + (time + 1 ) + " Start ------------\n");
 		String left, right;
 		left = plainText.substring(0, 8);
 		right = plainText.substring(8, 16);
+
+        System.out.println("1. Set L&R values-> left: " + left + " Right: " + right);
+
 		left = xor(left, P[time]);
+        System.out.println("2. Left xor: " + left);
 
 		// output from F function
 		String fOut = f(left);
+        System.out.println("3. left into f: " + fOut);
+
 
 		right = xor(fOut, right);
+        System.out.println("4. fout xor right: " + right); 
 
-		System.out.println(
-			"round " + time + ": "
-			+ right + left + " fout: " + fOut);
+
+		//System.out.println("round " + time + ": " + right + left + " fout: " + fOut);
 
 		// swap left and right
+        System.out.println("Final plaintext " + right + left); 
+
+        System.out.print("-----Round " + (time + 1) + " End ------------\n");
 		return right + left;
 	}
 

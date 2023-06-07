@@ -261,29 +261,52 @@ std::string f(std::string left) {
 
     return result;
 }
+std::string altF(std::string left) {
+    std::string a[] = new String[4];
+    String ans = "";
+    for (int i = 0; i < 8; i += 2) {
+        // the column number for S-box
+        // is 8-bit value(8*4 = 32 bit plain text)
+        long col = Long.parseUnsignedLong(hexToBin(left.substr(i, 2)), 2);
+        a[i / 2] = S[i / 2][(int)col];
+    }
+    ans = addBin(a[0], a[1]);
+    ans = xor(ans, a[2]);
+    ans = addBin(ans, a[3]);
+    return ans;
+}
+
 
 std::string encrypt(std::string plaintext, std::string key) {
     std::string left;
     std::string right;
     for (int i = 0; i < 16; i++) {
+        std::cout << "\n\n-----Round " << (i + 1 ) << " Start ------------\n";
         //do each round
 
         //set left and right
         left = plaintext.substr(0, 8);
         right = plaintext.substr(8, 8);
+        std::cout << "1. Set L&R values-> left: " << left << " Right: " << right << std::endl;
 
         //left xor with p[i]
         left = XOR(left, P[i]);
+        std::cout << "2. Left xor: " << left << std::endl;
+
 
         //get function output on f
         std::string temp = f(left);
+        std::cout << "3. left into f: " << temp << std::endl;
 
         //right xor function output
         right = XOR(temp, right);
+        std::cout << "4. fout xor right: " << right << std::endl; 
 
         //swap right and left
         plaintext = right + left;
-        std::cout << "Round " << (i) << ": " << plaintext << " fout: " << temp << std::endl; 
+        std::cout << "Final plaintext " << plaintext << std::endl; 
+        std::cout << "-----Round " << (i + 1) << " End ------------\n";
+
     }
     right = plaintext.substr(0, 8);
     left = plaintext.substr(8, 8);
