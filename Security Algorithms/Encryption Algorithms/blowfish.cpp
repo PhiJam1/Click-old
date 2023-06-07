@@ -245,34 +245,41 @@ void keyInit(std::string key) {
 }
 
 std::string f(std::string left) {
-    int b1 = stoi(left.substr(0,2), 0, 16);
-    int b2 = stoi(left.substr(2,2), 0, 16);
-    int b3 = stoi(left.substr(4,2), 0, 16);
-    int b4 = stoi(left.substr(6,2), 0, 16);
-    int val1 = stol(S[0][b1], 0, 16);
-    int val2 = stol(S[1][b2], 0, 16);
-    int val3 = stol(S[2][b3], 0, 16);
-    int val4 = stol(S[3][b4], 0, 16);
+    long b1 = stol(left.substr(0,2), 0, 16);
+    long b2 = stol(left.substr(2,2), 0, 16);
+    long b3 = stol(left.substr(4,2), 0, 16);
+    long b4 = stol(left.substr(6,2), 0, 16);
+    long val1 = stol(S[0][b1], 0, 16);
+    long val2 = stol(S[1][b2], 0, 16);
+    long val3 = stol(S[2][b3], 0, 16);
+    long val4 = stol(S[3][b4], 0, 16);
+    std::cout << "a1: " << S[0][b1] << " a2: " << S[1][b2] << " a3: " << S[2][b3] << " a4: " << S[3][b4] << std::endl;
 
-    int ans = ((((val1 + val2) % 4294967296) ^ val3) + val4) % 4294967296;
+
+    long ans = ((((val1 + val2) % 4294967296) ^ val3) + val4) % 4294967296;
     std::ostringstream ss;
     ss << std::hex << ans;
     std::string result = ss.str();
 
     return result;
 }
-std::string altF(std::string left) {
-    std::string a[] = new String[4];
-    String ans = "";
+std::string af(std::string left) {
+    std::string a[4];
+    std::string ans = "";
     for (int i = 0; i < 8; i += 2) {
         // the column number for S-box
         // is 8-bit value(8*4 = 32 bit plain text)
-        long col = Long.parseUnsignedLong(hexToBin(left.substr(i, 2)), 2);
+        long col = stol(left.substr(i, 2), 0, 16);
         a[i / 2] = S[i / 2][(int)col];
     }
-    ans = addBin(a[0], a[1]);
-    ans = xor(ans, a[2]);
-    ans = addBin(ans, a[3]);
+    int temp = stol(a[0], 0, 16) + stol(a[1], 0, 16);
+    std::ostringstream ss;
+    ss << std::hex << temp;
+    ans = ss.str();
+    ans = XOR(ans, a[2]);
+    temp = stol(ans, 0, 16) + stol(a[3], 0, 16);
+    ss << std::hex << temp;
+    ans = ss.str();
     return ans;
 }
 
