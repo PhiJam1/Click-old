@@ -216,14 +216,13 @@
 
 
 // Subkeys initialisation with digits of pi.
-unsigned int P[18][4] = { {0x24, 0x3f, 0x6a, 0x88}, {0x85, 0xa3, 0x08, 0xd3}, {0x13, 0x19, 0x8a, 0x2e}, 
-            {0x03, 0x70, 0x73, 0x44}, {0xa4, 0x09, 0x38, 0x22}, {0x29, 0x9f, 0x31, 0xd0}, 
-            {0x08, 0x2e, 0xfa, 0x98}, {0xec, 0x4e, 0x6c, 0x89}, {0x45, 0x28, 0x21, 0xe6}, 
-            {0x38, 0xd0, 0x13, 0x77}, {0xbe, 0x54, 0x66, 0xcf}, {0x34, 0xe9, 0x0c, 0x6c}, 
-            {0xc0, 0xac, 0x29, 0xb7}, {0xc9, 0x7c, 0x50, 0xdd}, {0x3f, 0x84, 0xd5, 0xb5}, 
-            {0xb5, 0x47, 0x09, 0x17}, {0x92, 0x16, 0xd5, 0xd9}, {0x89, 0x79, 0xfb, 0x1b} }; 
+ std::string P[] = { "243f6a88", "85a308d3", "13198a2e", "03707344", "a4093822",
+                   "299f31d0", "082efa98", "ec4e6c89", "452821e6", "38d01377",
+                   "be5466cf", "34e90c6c", "c0ac29b7", "c97c50dd", "3f84d5b5",
+                   "b5470917", "9216d5d9", "8979fb1b" };
 
 
+#if 0
 //This will take in a user's key and append '!'s until
 //it's size is a multiple of 32 bits.
 // This is some 1 am type scary code. A likely source for bugs. 
@@ -325,20 +324,86 @@ unsigned int f(unsigned char leftArr[]) {
     h = (unsigned int) ( h ^ stol(S[2][(leftArr[2])], 0, 16) ) + stol(S[3][leftArr[3]], 0, 16);
     return h;
 }
+#endif
+
+
+//start fresh
+
+//function that will xor two string hex values
+std::string XOR(std::string s1, std::string s2) {
+    unsigned int j = stol(s1, 0, 16) ^ stol(s2, 0, 16);
+    std::stringstream sstream;
+    sstream << std::hex << j;
+    std::string result = sstream.str();
+    return result;
+}
+
+/*
+    Function will accept a 32 bit hex key.
+    It will xor with the values in P array.
+*/
+void keyInit(std::string key) {
+    for (int i = 0; i < 18; i++) {
+        P[i] = XOR(P[i], key);
+        std::cout << "Round " << (i + 1) << ": " << P[i] << std::endl;
+    }
+
+}
+
+std::string f(std::string left) {
+    int b1 = stoi(left.substr(0,2), 0, 16);
+    int b2 = stoi(left.substr(2,4), 0, 16);
+    int b3 = stoi(left.substr(4,6), 0, 16);
+    int b4 = stoi(left.substr(6,8), 0, 16);
+
+    std::string ans = std::to_string(stol(XOR((S[0][b1] + S[1][b2]), S[2][b3]), 0, 16) + stol(S[3][b4], 0, 16));
+    return ans;
+}
+
+std::string encrypt(std::string plaintext, std::string key) {
+    std::string left;
+    std::string right;
+    for (int i = 0; i < 16; i++) {
+        //do each round
+
+        //set left and right
+        left = plaintext.substr(0, 8);
+        right = plaintext.substr(8, 16);
+
+        //left xor with p[i]
+        left = XOR(left, P[i]);
+
+        //get function output on f
+        std::string temp = f(left);
+
+        //right xor function output
+        right = XOR(temp, right);
+
+        //swap right and left
+        plaintext = right + left;
+    }
+    right = plaintext.substr(0, 8);
+    left = plaintext.substr(8, 16);
+
+    right = XOR(right, P[16]);
+    left = XOR(left, P[17]);
+    return left + right;
+
+    //do the post processing
+}
 
 //currently only works for 64 bits (8 char)
 int main() {
-    unsigned char key[8] = {'a', 's', 'd', 'f', 'g', 'h', 'j', 'k'}; //8 char = 8 bytes = 64 bits
-    std::cout << "Key must be between 8 char long\n";
-    std::cout << "Enter key: \n";
-    //std::cin >> key;
-    getKey(key);
+    /*
+        For testing, I have the plaintext as 8 bytes of data in hex.
+        For use, we'd grab 8 bytes at a time and turn to hex and feed
+        to functions;
+    */
+    std::string plaintext = "1A2B3C4D6E7F8F9B"; //64 bits (8 bytes), meant to be used as hex
+    std::string key = "AABBCCDD"; //32 bits, these are meant to be used as hex
 
-    unsigned char block[8];
-    int padding = 0;
-    getPlaintextBlock(block, 0, padding);
-
-    encrypt(block);
+    keyInit(key);
+    encrypt(plaintext, key);
 
 
 }
