@@ -216,7 +216,7 @@
 
 
 // Subkeys initialisation with digits of pi.
-int P[18][4] = { {0x24, 0x3f, 0x6a, 0x88}, {0x85, 0xa3, 0x08, 0xd3}, {0x13, 0x19, 0x8a, 0x2e}, 
+unsigned int P[18][4] = { {0x24, 0x3f, 0x6a, 0x88}, {0x85, 0xa3, 0x08, 0xd3}, {0x13, 0x19, 0x8a, 0x2e}, 
             {0x03, 0x70, 0x73, 0x44}, {0xa4, 0x09, 0x38, 0x22}, {0x29, 0x9f, 0x31, 0xd0}, 
             {0x08, 0x2e, 0xfa, 0x98}, {0xec, 0x4e, 0x6c, 0x89}, {0x45, 0x28, 0x21, 0xe6}, 
             {0x38, 0xd0, 0x13, 0x77}, {0xbe, 0x54, 0x66, 0xcf}, {0x34, 0xe9, 0x0c, 0x6c}, 
@@ -227,7 +227,7 @@ int P[18][4] = { {0x24, 0x3f, 0x6a, 0x88}, {0x85, 0xa3, 0x08, 0xd3}, {0x13, 0x19
 //This will take in a user's key and append '!'s until
 //it's size is a multiple of 32 bits.
 // This is some 1 am type scary code. A likely source for bugs. 
-void getKey(char *key) {
+void getKey(unsigned char *key) {
     for (int i = 0; i < 18; i++) {
         int j = i % 2 == 0 ? 0 : 4;
         P[i][0] ^= key[j++];
@@ -246,6 +246,7 @@ void getKey(char *key) {
 
 //does not pad yet
 
+unsigned int f(unsigned char *);
 
 bool getPlaintextBlock(unsigned char *blockPtr, int blockNumber, int padding) {
     std::ifstream inFile;
@@ -278,10 +279,9 @@ bool getPlaintextBlock(unsigned char *blockPtr, int blockNumber, int padding) {
 
 
 void encrypt(unsigned char *block) {
+    unsigned char left[] = {block[0], block[1], block[2], block[3]};
+    unsigned char right[] = {block[4], block[5], block[6], block[7]};
     for (int i = 0; i < 16; i++) {
-        //create a left and right
-        unsigned char left[] = {block[0], block[1], block[2], block[3]};
-        unsigned char right[] = {block[4], block[5], block[6], block[7]};
          
         //left = left ^ P[i];
         for (int j = 0; j < 4; j++) {
@@ -306,22 +306,32 @@ void encrypt(unsigned char *block) {
             right[j] = mid[j];
         }
     }
+    unsigned int new_left = (left[0] << 24) + (left[1] << 16) + (left[2] << 8) + (left[3]);
+    unsigned int new_right = (right[0] << 24) + (right[1] << 16) + (right[2] << 8) + (right[3]);
+    unsigned long ans = (long) ( (long) new_left << 32) + (long) new_right;
+    std::cout << ans << std::endl;
 
 }
 
 unsigned int f(unsigned char leftArr[]) {
     unsigned int left = (leftArr[0] << 24) + (leftArr[1] << 16) + (leftArr[2] << 8) + (leftArr[3]);
-    unsigned int h = stoi(S[0][left >> 24], 0, 16) + stoi(S[1][left >> 16 & 0xff], 0, 16);
-    h = ( h ^ stoi(S[2][left >> 8 & 0xff], 0, 16) ) + stoi(S[3][left & 0xff], 0, 16);
+    //std::string s1 = S[0][leftArr[0]];
+    //std::string s2 = S[1][leftArr[1]];
+    //std::string s4 = S[2][leftArr[2]];
+    //std::string s3 = S[3][leftArr[3]];
+
+
+    unsigned int h = (unsigned int) stol(S[0][leftArr[0]], 0, 16) + stol(S[1][(leftArr[1])], 0, 16);
+    h = (unsigned int) ( h ^ stol(S[2][(leftArr[2])], 0, 16) ) + stol(S[3][leftArr[3]], 0, 16);
     return h;
 }
 
 //currently only works for 64 bits (8 char)
 int main() {
-    char key[8]; //8 char = 8 bytes = 64 bits
+    unsigned char key[8] = {'a', 's', 'd', 'f', 'g', 'h', 'j', 'k'}; //8 char = 8 bytes = 64 bits
     std::cout << "Key must be between 8 char long\n";
     std::cout << "Enter key: \n";
-    std::cin >> key;
+    //std::cin >> key;
     getKey(key);
 
     unsigned char block[8];

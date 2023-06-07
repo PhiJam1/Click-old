@@ -5,8 +5,7 @@ import java.util.*;
 public class blowfishex {
 
 	// Substitution boxes each string is a 32 bit hexadecimal value.
-	String S[][]
-		= { { "d1310ba6", "98dfb5ac", "2ffd72db", "d01adfb7", "b8e1afed",
+	String S[][] = { { "d1310ba6", "98dfb5ac", "2ffd72db", "d01adfb7", "b8e1afed",
 			"6a267e96", "ba7c9045", "f12c7f99", "24a19947", "b3916cf7",
 			"0801f2e2", "858efc16", "636920d8", "71574e69", "a458fea3",
 			"f4933d7e", "0d95748f", "728eb658", "718bcd58", "82154aee",

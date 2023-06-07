@@ -10,6 +10,7 @@ void generateSubKeys(int *pBoxes);
 
 void encrypt(std::string plaintext);
 
+void f(unsigned char *);
 
 
 #endif
