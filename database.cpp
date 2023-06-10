@@ -1,3 +1,10 @@
+//TO RUN: 
+// g++ database.cpp
+// ./a.out
+
+
+
+
 //the required header files
 #include <iostream>
 #include <string>
