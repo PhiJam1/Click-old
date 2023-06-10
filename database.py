@@ -1,3 +1,7 @@
+#TO RUN: python3 database.py
+
+
+
 import mysql.connector
 import socket
 import sys
