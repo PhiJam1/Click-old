@@ -1,7 +1,9 @@
 #include <iostream>
 #include <vector>
 
-#include "Ciphers.cpp"
+#include "Security_Algorithms/Encryption_Algorithms/XOR.cpp";
+#include "Security_Algorithms/Cipher.cpp";
+
 
 class User {   
 
