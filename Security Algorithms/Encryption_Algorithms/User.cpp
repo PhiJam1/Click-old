@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-#include "Encryptors.cpp"
+#include "Ciphers.cpp"
 
 class User {   
 
@@ -10,6 +10,5 @@ class User {
     std::string lastName;
     std::string email;
     std::string password;
-    std::vector<Encryptors> encryptions;
-
+    std::vector<Ciphers> encryptions;
 };

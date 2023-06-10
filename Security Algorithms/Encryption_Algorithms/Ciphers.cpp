@@ -2,7 +2,7 @@
 #include <vector>
 
 
-class Encryptors {   
+class Ciphers {   
 
   private:
     std::string cipherName;
