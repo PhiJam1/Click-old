@@ -11,6 +11,7 @@
 #include <sstream>
 #include "aes_structures.h"
 
+#if 0
 using namespace std;
 
 /* Serves as the initial round during encryption
@@ -239,3 +240,4 @@ int main() {
 
     return 0;
 }
+#endif

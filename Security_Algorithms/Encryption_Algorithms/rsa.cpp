@@ -3,7 +3,7 @@
 // That probably means we calculate the private key before the public key
 // - if that even possible
 #include <bits/stdc++.h>
-
+#if 0
 //Use the euclidean algorithm for gcd
 int gcd(int x, int y) {
     if (x < y) {
@@ -80,3 +80,4 @@ int main()
  
     return 0;
 }
+#endif

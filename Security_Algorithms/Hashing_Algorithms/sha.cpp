@@ -4,7 +4,7 @@
 #include <fstream>
 #include <bits/stdc++.h>
 #include <stdint.h>
-
+#if 0
 #include "sha.h"
 
 //Inital register values
@@ -261,3 +261,5 @@ int main() {
     debugLogFP.close();
     return 0;
 }
+
+#endif

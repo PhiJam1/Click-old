@@ -172,57 +172,55 @@ void xorEncrypt(std::string plaintextFileName, std::string key) {
 
 }
 
-int main() {
+/*
+    Function that will be called by other classes to
+    encrypt and decrypt data with xor.
+    It will return true if it was able to encrypt or decrpyt anything
+*/
+std::string xorManager(std::string text, std::string key, bool adv, bool encrypt) {
 
     bool encrypt = false;
     std::cout << "XOR encryptor\n";
-    while (1) {
-        std::cout << "Encrypt (1)\nDecrypt(2)\nAdvanced Encryption (3)\nAdvanced Decryption (4)\n";
-        int optionTemp = 0;
-        std::cin >> optionTemp;
-        if (optionTemp == 1) {
-            std::string plaintextFileName;
-            std::string key;
-            std::cout << "Please enter plaintext file name: ";
-            std::cin >> plaintextFileName;
-            std::cout << "Please enter a key: ";
-            std::cin >> key;
-            xorEncrypt(plaintextFileName, key);
-            break;
-        }
-        if (optionTemp == 2) {
-            std::string ciphertextFileName;
-            std::string key;
-            std::cout << "Please enter ciphertext file name: ";
-            std::cin >> ciphertextFileName;
-            std::cout << "Please enter your key: ";
-            std::cin >> key;
-            xorDecrypt(ciphertextFileName, key);
-            break;
-        }
-        if (optionTemp == 3) {
-            std::string plaintextFileName;
-            std::string key;
-            std::cout << "Please enter plaintext file name: ";
-            std::cin >> plaintextFileName;
-            std::cout << "Please enter a key: ";
-            std::cin >> key;
-            advancedXorEncryption(plaintextFileName, key);
-            break;
-        }
-        if (optionTemp == 4) {
-            std::string ciphertextFileName;
-            std::string key;
-            std::cout << "Please enter ciphertext file name: ";
-            std::cin >> ciphertextFileName;
-            std::cout << "Please enter your key: ";
-            std::cin >> key;
-            advancedXorDecryption(ciphertextFileName, key);
-            break;
-        }
-        else {
-            std::cout << "Invalid selection\n";
-        }
+
+    std::cout << "Encrypt (1)\nDecrypt(2)\nAdvanced Encryption (3)\nAdvanced Decryption (4)\n";
+    int optionTemp = 0;
+    std::cin >> optionTemp;
+    if (optionTemp == 1) {
+        std::string plaintextFileName;
+        std::string key;
+        std::cout << "Please enter plaintext file name: ";
+        std::cin >> plaintextFileName;
+        std::cout << "Please enter a key: ";
+        std::cin >> key;
+        return xorEncrypt(plaintextFileName, key);
     }
-    return 0;
+    if (optionTemp == 2) {
+        std::string ciphertextFileName;
+        std::string key;
+        std::cout << "Please enter ciphertext file name: ";
+        std::cin >> ciphertextFileName;
+        std::cout << "Please enter your key: ";
+        std::cin >> key;
+        return xorDecrypt(ciphertextFileName, key);
+    }
+    if (optionTemp == 3) {
+        std::string plaintextFileName;
+        std::string key;
+        std::cout << "Please enter plaintext file name: ";
+        std::cin >> plaintextFileName;
+        std::cout << "Please enter a key: ";
+        std::cin >> key;
+        return advancedXorEncryption(plaintextFileName, key);
+    }
+    if (optionTemp == 4) {
+        std::string ciphertextFileName;
+        std::string key;
+        std::cout << "Please enter ciphertext file name: ";
+        std::cin >> ciphertextFileName;
+        std::cout << "Please enter your key: ";
+        std::cin >> key;
+        return advancedXorDecryption(ciphertextFileName, key);
+    }
+    std::cout << "Invalid selection\n";
+    return "";
 }
