@@ -11,19 +11,24 @@
     program will read and write in parallel, rather than reading an entire file
     into a large buffer, then process it and write it out. This allows it to operate
     on files regardless to size. Space complexity is constant. Time complexity is linear.
+    Added a more secure encryption and decrytion function. Rather than using a constant key provided
+    by the user, this will change the given key after every xor operation. This should make the
+    cipher text MUCH less susceptible to a frequency analysis or some brute force attack.
 
     How to use:
     Compile and run the program. It will prompt your for all the info it needs. Put your plaintext
     into your plaintext file. The output will be in a file named 'ciphertext.txt'. The key here is
     similar to a password. The longer and stranger it is, the better.
+    - This is outdated. The driver of this code with be from the user class, which will be driven by
+    the main.cpp file.
 
     Updates:
-    Added a more secure encryption and decrytion function. Rather than using a constant key provided
-    by the user, this will change the given key after every xor operation. This should make the
-    cipher text MUCH less susceptible to a frequency analysis or some brute force attack.
+    Currenlty working to adapted the code to work better with the rest of the project structure. Rather than
+    read and write to files, it will be recieving all that info from the user class and returning back to User.cpp.
+    - Philip James 06/11/2023
 
     TODO:
-    Change output so it more uniform between different modes/cases
+    Alter read and write from files to interact with user class.
     Allow the user to input the value by which the key changes for advanced modes
 
 */
@@ -136,7 +141,8 @@ void advancedXorEncryption(std::string plaintextFileName, std::string key) {
 
 }
 
-void xorEncrypt(std::string plaintextFileName, std::string key) {
+std::string xorEncrypt(std::string plaintext, std::string key) {
+    /*
     //open plaintext file
     std::ifstream plaintextFP;
     plaintextFP.open(plaintextFileName);
@@ -162,13 +168,22 @@ void xorEncrypt(std::string plaintextFileName, std::string key) {
     //Xors each character in plaintext with a character in key
     for (int i = 0; plaintextFP.get(c); i++) {
         ciphertextFP << (c ^ key.at(i % key.length())) << " ";
+    } 
+    */
+    char c = 'a';
+
+    std::string ciphertext = "";
+    for (int i = 0; i < plaintext.size(); i++) {
+        c = (char) plaintext.substr(i, 1);
+        ciphertext += (c ^ key.at(i % key.length()));
     }
+    return ciphertext;
 
     //close files
-    ciphertextFP.close();
-    plaintextFP.close();
+    //ciphertextFP.close();
+    //plaintextFP.close();
 
-    std::cout << "Data have been saved to 'ciphertext.txt'" << std::endl;
+    //std::cout << "Data have been saved to 'ciphertext.txt'" << std::endl;
 
 }
 
