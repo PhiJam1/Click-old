@@ -116,7 +116,7 @@ std::string xorManagerPassword(std::string text, int ciphertext[], std::string k
 
 std::string xorManagerFile() {
     return "";
-    //todo
+    //todo - we'll get to this after password management is fully finished
 }
 
 
