@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-#include "src/XOR.hpp"
+#include "Cipher.hpp"
 
 class User {
 
@@ -12,7 +12,7 @@ class User {
         std::string lastName;
         std::string email;
         std::string password;
-        std::vector<Ciphers> encryptions;
+        std::vector<Cipher> encryptions;
 
     public:
         std::string getFirstName();
@@ -24,6 +24,6 @@ class User {
         bool xorEncryptPassword(std::string plaintext, std::string key);
 
         bool xorAdvEncrptPassword(std::string plaintext, std::string key);
-    }
+};
 
 #endif

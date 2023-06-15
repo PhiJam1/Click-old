@@ -33,6 +33,6 @@ class Cipher {
         bool setLoginName(std::string newLoginName);
         bool setCipherName(CipherTypes newCipherName);
         bool setKey(std::string newKey);
-}
+};
 
 #endif
