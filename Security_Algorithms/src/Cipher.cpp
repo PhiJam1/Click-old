@@ -1,67 +1,52 @@
 #include <iostream>
 #include <vector>
 
-#define MAX_LOGIN_NAME_SIZE 50
-#define NUM_CIPHERS 4
-enum CipherTypes {
-  XOR,
-  BLOWFISH,
-  AES,
-  SHA
-};
+#include "Cipher.hpp"
 
-class Ciphers {   
+Cipher::Cipher (std::string loginName, CipherTypes cipherName, std::string key, int zeros) {
+  //call out setters rather than manually assigning these values
+  //because the setters should conduct data validation.
+}
 
-  private:
-    std::string loginName; //Like a company name
-    CipherTypes cipherName; // Maybe we change this to an enum?
-    std::string key;
-    int numPaddedZeros; //Just put in -1 if not applicable for this cipher
+std::string Cipher::getLoginName() {
+  return this->loginName;
+}
 
-  public:
-    std::string getLoginName() {
-      return this->loginName;
-    }
+CipherTypes Cipher::getCipherName() {
+  return this->cipherName;
+}
 
-    CipherTypes getCipherName() {
-      return this->cipherName;
-    }
-    std::string getKey() {
-      return this->key;
-    }
+std::string Cipher::getKey() {
+  return this->key;
+}
 
-    int getNumPaddedZeros() {
-      return this->numPaddedZeros;
-    }
+int Cipher::getNumPaddedZeros() {
+  return this->numPaddedZeros;
+}
 
-    //Setters
-    bool setLoginName(std::string newLoginName) {
-      if (newLoginName.size() > MAX_LOGIN_NAME_SIZE) {
-        return false;
-      }
-      this->loginName = newLoginName;
-      return true;
-    }
+//Setters
+bool Cipher::setLoginName(std::string newLoginName) {
+  if (newLoginName.size() > MAX_LOGIN_NAME_SIZE) {
+    return false;
+  }
 
-    bool setCipherName(CipherTypes newCipherName) {
-      if (newCipherName < 0 || newCipherName >= NUM_CIPHERS) {
-        return false;
-      }
+  this->loginName = newLoginName;
+  return true;
+}
 
-      this->cipherName = newCipherName;
-    }
+bool Cipher::setCipherName(CipherTypes newCipherName) {
+  if (newCipherName < 0 || newCipherName >= NUM_CIPHERS) {
+    return false;
+  }
 
-    bool setKey(std::string newKey) {
-      //TODO: INPUT VALIDATION BASED OFF OF ALGO TYPE
+  this->cipherName = newCipherName;
+  return true;
+}
 
-      this->key = newKey;
-      return true;
-    }
+bool Cipher::setKey(std::string newKey) {
+  //TODO: INPUT VALIDATION BASED OFF OF ALGO TYPE, some encryption
+  //type will only allow certain size key. 
 
-
-
-
-
-
-
-};
+  this->key = newKey;
+  return true;
+}
