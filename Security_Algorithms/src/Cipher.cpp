@@ -2,7 +2,7 @@
 #include <vector>
 
 #define MAX_LOGIN_NAME_SIZE 50
-
+#define NUM_CIPHERS 4
 enum CipherTypes {
   XOR,
   BLOWFISH,
@@ -14,7 +14,7 @@ class Ciphers {
 
   private:
     std::string loginName; //Like a company name
-    std::string cipherName; //Maybe we change this to an enum?
+    CipherTypes cipherName; // Maybe we change this to an enum?
     std::string key;
     int numPaddedZeros; //Just put in -1 if not applicable for this cipher
 
@@ -23,7 +23,7 @@ class Ciphers {
       return this->loginName;
     }
 
-    std::string getCipherName() {
+    CipherTypes getCipherName() {
       return this->cipherName;
     }
     std::string getKey() {
@@ -43,10 +43,12 @@ class Ciphers {
       return true;
     }
 
-    bool setCipherName(std::string newCipherName) {
-      //def make this into an enum
+    bool setCipherName(CipherTypes newCipherName) {
+      if (newCipherName < 0 || newCipherName >= NUM_CIPHERS) {
+        return false;
+      }
 
-
+      this->cipherName = newCipherName;
     }
 
     bool setKey(std::string newKey) {
