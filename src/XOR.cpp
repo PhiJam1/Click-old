@@ -3,7 +3,7 @@
 #include <fstream>
 #include <bits/stdc++.h>
 
-#include "XOR.h"
+//#include "XOR.h"
 /*
     Very basic xor encrytion algorithm. One thing to note is that this program
     will accept a key longer than 1 char. The implementation of that feature here
