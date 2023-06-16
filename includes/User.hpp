@@ -15,6 +15,8 @@ class User {
         std::vector<Cipher> encryptions;
 
     public:
+        User(std::string firstName, std::string getLastName, std::string email, std::string password);
+
         std::string getFirstName();
 
         std::string getLastName();
