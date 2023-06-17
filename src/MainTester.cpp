@@ -17,7 +17,7 @@ int main() {
     outFile << "Creating a User object\n";
     User p1("Philip", "James", "PhiJam1", "password");
     outFile << "User was create\n";
-    //outFile << p1.getEmail << " " << p1.getFirstName << " " << p1.getLastName << "\n";
+    outFile << p1.getEmail << " " << p1.getFirstName << " " << p1.getLastName << "\n";
     
 
     outFile.close();
