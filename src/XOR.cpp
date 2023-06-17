@@ -3,6 +3,7 @@
 #include <fstream>
 #include <bits/stdc++.h>
 
+#include "XOR.hpp"
 //#include "XOR.h"
 /*
     Very basic xor encrytion algorithm. One thing to note is that this program

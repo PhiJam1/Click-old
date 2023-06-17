@@ -23,7 +23,7 @@ class User {
 
         std::string getEmail();
 
-        bool xorEncryptPassword(std::string plaintext, std::string key);
+        std::string xorEncryptPassword(std::string plaintext, std::string key);
 
         bool xorAdvEncrptPassword(std::string plaintext, std::string key);
 };

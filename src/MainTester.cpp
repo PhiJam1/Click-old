@@ -17,7 +17,16 @@ int main() {
     outFile << "Creating a User object\n";
     User p1("Philip", "James", "PhiJam1", "password");
     outFile << "User was create\n";
-    outFile << p1.getEmail << " " << p1.getFirstName << " " << p1.getLastName << "\n";
+    outFile << "Email: " << p1.getEmail();
+    outFile << " | First Name: " << p1.getFirstName() << " | Last Name: " << p1.getLastName() << "\n";
+
+    outFile << "Now testing the xor encryption function\n";
+    std::string xorTestPassword = "password123";
+    std::string xorTestKey = "key";
+    outFile << "Given password: " << xorTestPassword << "\n";
+    outFile << "Given Key: " << xorTestKey << "\n";
+    outFile << "Password: " << p1.xorEncryptPassword(xorTestPassword, xorTestKey) << "\n";
+
     
 
     outFile.close();
