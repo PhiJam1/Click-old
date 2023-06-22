@@ -23,9 +23,11 @@ class User {
 
         std::string getEmail();
 
-        std::string xorEncryptPassword(std::string plaintext, std::string key);
+        std::string xorEncryptPasswordDriver(std::string plaintext, std::string key);
 
-        bool xorAdvEncrptPassword(std::string plaintext, std::string key);
+        std::string xorDecryptPasswordDriver(std::string ciphertext, std::string key);
+
+        bool xorAdvEncrptPasswordDriver(std::string plaintext, std::string key);
 };
 
 #endif

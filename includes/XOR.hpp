@@ -4,10 +4,10 @@
 #include <iostream>
 #include <string>
 
+std::string xorEncryptPassword(std::string plaintext, std::string key);
+std::string xorDecryptPassword(std::vector<int> ciphertext, std::string key);
+std::string advancedXorDecryptionPassword(std::vector<int> ciphertext, std::string key);
+std::string advancedXorEncryptionPassword(std::string plaintext, std::string key);
 
-void xorDecrypt(std::string, std::string);
-void advancedXorDecryption(std::string, std::string);
-void advancedXorEncryption(std::string, std::string);
-void xorEncrypt(std::string, std::string);
 
 #endif /* XOR_H */

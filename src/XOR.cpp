@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <vector>
 #include <bits/stdc++.h>
 
 #include "XOR.hpp"
@@ -44,30 +45,31 @@ std::string xorEncryptPassword(std::string plaintext, std::string key) {
     std::string ciphertext = "";
     //Xors each character in plaintext with a character in key
     for (int i = 0; i < plaintext.size(); i++) {
-        c = plaintext[i];
-        ciphertext += (c ^ key.at(i % key.length())) + " ";
+        c = plaintext.at(i);
+        int x = c ^ key.at(i % key.length());
+        ciphertext += (std::to_string(c ^ key.at(i % key.length())) + " ");
     } 
     return ciphertext;
 }
 
-std::string xorDecryptPassword(int ciphertext[], std::string key) {
+std::string xorDecryptPassword(std::vector<int> ciphertext, std::string key) {
 
     std::string plaintext = "";
-    for (int i = 0; sizeof(ciphertext) / sizeof(ciphertext[0]); i++) {
+    for (int i = 0; i < ciphertext.size(); i++) {
         char c = key[i % key.length()];
         //stoi() converts the string to an ascii integer
-        c ^= ciphertext[i];
+        c ^= ciphertext.at(i);
         plaintext += c;
     }
     return plaintext;
 }
 
-std::string advancedXorDecryptionPassword(int ciphertext[], std::string key) {
+std::string advancedXorDecryptionPassword(std::vector<int> ciphertext, std::string key) {
     std::string plaintext = "";
-    for (int i = 0; i < sizeof(ciphertext) / sizeof(ciphertext[0]); i++) {
+    for (int i = 0; i < ciphertext.size(); i++) {
 
         char c = key[i % key.length()];
-        c ^= ciphertext[i];
+        c ^= ciphertext.at(i);
         plaintext += c;
         key[i % key.length()] = ((key[i % key.length()] + 1) % 127) + 1;
     }
@@ -88,42 +90,9 @@ std::string advancedXorEncryptionPassword(std::string plaintext, std::string key
 
 
 
-
-
-/*
-    This function will manage all password xor function. 
-    text: This can be plaintext, ciphertext, or a file path
-    cipher text: This is for decryption. It will be the integers used as cipher text
-    key: The key for this encryption
-    adv: true if this is an advanced encryption
-    encrypt: true if this is to encrypt given data
-*/
-
-std::string xorManagerPassword(std::string text, int ciphertext[], std::string key, bool adv, bool encrypt) {
-    if (encrypt) {
-        if (adv) {
-            return advancedXorEncryptionPassword(text, key);
-        } else {
-            return xorEncryptPassword(text, key);
-        }
-    } else {
-        if (adv) {
-            return advancedXorDecryptionPassword(ciphertext, key);
-        } else {
-            return xorDecryptPassword(ciphertext, key);
-        }
-    }
-}
-
-std::string xorManagerFile() {
-    return "";
-    //todo - we'll get to this after password management is fully finished
-}
-
-
 /* File functions */
 
-
+/*
 void xorDecryptFile(std::string ciphertextFileName, std::string key) {
     //open encrypted file for reading
     std::ifstream cipherFile;
@@ -268,3 +237,5 @@ void xorEncryptFile(std::string plaintextFileName, std::string key) {
 
     std::cout << "Data have been saved to 'ciphertext.txt'" << std::endl;
 }
+
+*/
