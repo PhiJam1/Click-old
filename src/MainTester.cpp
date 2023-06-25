@@ -20,7 +20,7 @@ int main() {
     outFile << "Email: " << p1.getEmail();
     outFile << " | First Name: " << p1.getFirstName() << " | Last Name: " << p1.getLastName() << "\n";
 
-    outFile << "Ecrypting a password\n";
+    outFile << "Ecrypting a password with basic xor\n";
     std::string xorTestPassword = "password123";
     std::string xorTestKey = "key";
     outFile << "Given password: " << xorTestPassword << "\n";
@@ -31,6 +31,13 @@ int main() {
     outFile << "Decrypting that old password\n";
     std::string decryptedPlaintext = p1.xorDecryptPasswordDriver(encryptedPassword, xorTestKey);
     outFile << "Cipher: " << decryptedPlaintext << std::endl;
+
+    outFile << "Encrypting a password with adv xor using same old plaintext and password\n";
+    encryptedPassword = p1.xorAdvEncryptPasswordDriver("password123", xorTestKey);
+    outFile << "Adv encrypted text: " << encryptedPassword << std::endl;
+    decryptedPlaintext = p1.xorAdvDecryptPasswordDriver(encryptedPassword, xorTestKey);
+    outFile << "Adv decrypted password: " << decryptedPlaintext << std::endl;
+    
     
 
     outFile.close();

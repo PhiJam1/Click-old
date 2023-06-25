@@ -27,7 +27,9 @@ class User {
 
         std::string xorDecryptPasswordDriver(std::string ciphertext, std::string key);
 
-        bool xorAdvEncrptPasswordDriver(std::string plaintext, std::string key);
+        std::string xorAdvEncryptPasswordDriver(std::string plaintext, std::string key);
+        
+        std::string xorAdvDecryptPasswordDriver(std::string ciphertext, std::string key);
 };
 
 #endif

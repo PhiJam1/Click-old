@@ -67,7 +67,43 @@
   }
 
 
-  bool User::xorAdvEncrptPasswordDriver(std::string plaintext, std::string key) {
-    ///std::string ciphertext = xorManager(plaintext, key, true, true);
-    return true;
+  std::string User::xorAdvEncryptPasswordDriver(std::string plaintext, std::string key) {
+    //go through this users ciphers list and see if there is alr one for this
+    //company/website/login. If there is, tell the user that it is about to be overwritten
+
+    //get cipher text
+    std::string ciphertext = advancedXorEncryptionPassword(plaintext, key);
+    //std::cout << "\n\n" << ciphertext << "\n\n" << std::endl;
+
+    //malloc a ciphers object. Save that POINTER in the cipher list for this user
+
+    //return with success message
+    return ciphertext;
+  }
+
+  std::string User::xorAdvDecryptPasswordDriver(std::string ciphertext, std::string key) {
+    //turn the cipher text to vector of ints
+    std::string num;
+    std::vector<int> cipherVect;
+    for (int i = 0; i < ciphertext.size(); i++) {
+      if (ciphertext.at(i) != ' ') {
+        num += ciphertext.at(i);
+      } else {
+        cipherVect.push_back(stoi(num));
+        num = "";
+      }
+    }
+
+    std::cout << "cipher vectf: \n";
+    for (int i = 0; i < cipherVect.size(); i++) {
+      std::cout << cipherVect.at(i) << " ";
+    }
+    std::cout << "hereeree\n\n"; 
+    //get plaintext text
+    std::string plaintext = advancedXorDecryptionPassword(cipherVect, key);
+
+    //malloc a ciphers object. Save that POINTER in the cipher list for this user
+
+    //return with success message
+    return plaintext;
   }
