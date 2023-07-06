@@ -53,10 +53,6 @@
       }
     }
 
-    std::cout << "cipher vect: \n";
-    for (int i = 0; i < cipherVect.size(); i++) {
-      std::cout << cipherVect.at(i) << " ";
-    } 
     //get plaintext text
     std::string plaintext = xorDecryptPassword(cipherVect, key);
 
@@ -94,11 +90,6 @@
       }
     }
 
-    std::cout << "cipher vectf: \n";
-    for (int i = 0; i < cipherVect.size(); i++) {
-      std::cout << cipherVect.at(i) << " ";
-    }
-    std::cout << "hereeree\n\n"; 
     //get plaintext text
     std::string plaintext = advancedXorDecryptionPassword(cipherVect, key);
 

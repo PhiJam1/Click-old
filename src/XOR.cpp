@@ -77,12 +77,11 @@ std::string advancedXorDecryptionPassword(std::vector<int> ciphertext, std::stri
 }
 
 std::string advancedXorEncryptionPassword(std::string plaintext, std::string key) {
-    char c;
     std::string ciphertext = "";
 
     //Xors each character in plaintext with a character in key
     for (int i = 0; i < plaintext.size(); i++) {
-        ciphertext += (c ^ key.at(i % key.length())) + " ";
+        ciphertext += std::to_string((plaintext.at(i) ^ key.at(i % key.length()))) + " ";
         key[i % key.length()] = ((key[i % key.length()] + 1) % 127) + 1;
     }
     return ciphertext;
