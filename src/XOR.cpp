@@ -30,8 +30,7 @@
     - Philip James 06/11/2023
 
     TODO:
-    Alter read and write from files to interact with user class.
-    Allow the user to input the value by which the key changes for advanced modes
+    All password related functions are finished in this file.
 
     TEST THE SIZEOF STATEMENTS
 

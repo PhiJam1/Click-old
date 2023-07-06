@@ -3,7 +3,15 @@
 
 #include "User.hpp"
 #include "XOR.hpp"
+/*
+  TODO
+  Get barebone functions in for all encryption types that will just take in a text and output text
+  Save a running list of ciphers with a struct or something similar
+  Make a save data function for a user
+  Make a function to get saved data on log in for a user
+  Make checks with saved data when making new passwords
 
+*/
   //Set the cipher list later
   User::User(std::string firstName, std::string lastName, std::string email, std::string password) {
     this->firstName = firstName;
@@ -30,7 +38,6 @@
 
     //get cipher text
     std::string ciphertext = xorEncryptPassword(plaintext, key);
-    //std::cout << "\n\n" << ciphertext << "\n\n" << std::endl;
 
     //malloc a ciphers object. Save that POINTER in the cipher list for this user
 

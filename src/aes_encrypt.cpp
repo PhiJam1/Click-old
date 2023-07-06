@@ -9,6 +9,8 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
+#include <vector>
+
 #include "aes_structures.hpp"
 
 
@@ -145,6 +147,7 @@ int main() {
     cout << " (Make sure that you encrypt and decrypt properly) " << endl;
     cout << "---------------------------------------------------" << endl;
 
+    /* Used for files
     string filename;
     cout << "Enter the filename of the file that you want to encrypt: ";
     cin >> filename;
@@ -159,10 +162,18 @@ int main() {
     buffer << plaintextFile.rdbuf();
     string plaintext = buffer.str();
 
+    */
+
+    string plaintext = "password123";
+
+    /* Used for files
+
     plaintextFile.close();
 
     cout << "Contents of the file: " << plaintext << endl;
-
+    */
+    
+    
     // convert the text file to an array
     char message[plaintext.length() + 1];
     strcpy(message, plaintext.c_str());
@@ -187,7 +198,7 @@ int main() {
     unsigned char *encryptedMessage = new unsigned char[paddedMessageLen];
 
     string str;
-    ifstream infile("aes_keyfile", ios::in | ios::binary);
+    ifstream infile("src/aes_keyfile", ios::in | ios::binary);
     if (!infile.is_open()) {
         cout << "Unable to open aes_keyfile. (It doesn't exist)" << endl;
         return 1;
@@ -215,12 +226,17 @@ int main() {
 
     // Print the encrypted message in hex in the terminal
     cout << "Encrypted message in hex:" << endl;
+    std::vector<int> encryptedMessageVect;
     for (int i = 0; i < paddedMessageLen; i++) {
-        cout << hex << (int)encryptedMessage[i];
-        cout << " ";
+        encryptedMessageVect.push_back((int) encryptedMessage[i]);
     }
 
-    cout << endl;
+    ofstream ofs("ciphertext.txt");
+    for (int i = 0; i < encryptedMessageVect.size(); i++) {
+        ofs << encryptedMessageVect.at(i) << " ";
+    }
+
+    #if 0
 
     // New file that is created when encrypted
     ofstream outfile("ciphertext.txt", ios::out | ios::binary); 
@@ -233,7 +249,7 @@ int main() {
     outfile.close();
 
     cout << "Wrote encrypted message to the file that was specified." << endl;
-
+    #endif
     // Free memory
     delete[] paddedMessage;
     delete[] encryptedMessage;

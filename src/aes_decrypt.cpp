@@ -142,7 +142,7 @@ int main() {
     cout << "              128-bit AES Decryption" << endl;
 	cout << " (Make sure that you encrypt and decrypt properly) " << endl;
     cout << "---------------------------------------------------" << endl;
-
+	/*
     // Prompt user for ciphertext file name
     string ciphertextFileName;
     cout << "Enter the name of the ciphertext file: ";
@@ -160,18 +160,30 @@ int main() {
     file.seekg(0, ios::beg);
 
     // Read the encrypted message into a vector
-    vector<unsigned char> encryptedMessage(fileSize);
-    if (!file.read(reinterpret_cast<char*>(encryptedMessage.data()), fileSize)) {
-        cout << "Error reading the ciphertext file." << endl;
-        return 1;
-    }
+    //vector<unsigned char> encryptedMessage(fileSize);
+    //if (!file.read(reinterpret_cast<char*>(encryptedMessage.data()), fileSize)) {
+      //  cout << "Error reading the ciphertext file." << endl;
+        //return 1;
+    //}
+	*/
 
-    file.close();
-    cout << "Read encrypted message from " << ciphertextFileName << endl;
+	std::ifstream ifs("ciphertext.txt");
+	std::vector<unsigned char> encryptedMessage;
+	int j = 0;
+	while (ifs.good()) {
+		int val = 0;
+		ifs >> val;
+		encryptedMessage.push_back((unsigned char)  val);
+		std::cout << encryptedMessage.at(j++) << " ";
+	}
+
+
+    //file.close();
+    //cout << "Read encrypted message from " << ciphertextFileName << endl;
 
     // Read in the key from aes_keyfile
     string keystr;
-    ifstream aes_keyfile("aes_keyfile"); // Open the aes_keyfile
+    ifstream aes_keyfile("src/aes_keyfile"); // Open the aes_keyfile
 
     if (aes_keyfile.is_open()) {
         getline(aes_keyfile, keystr); // The first line of the file should be the key, or change this to change line number
