@@ -3,7 +3,11 @@
 #include <iostream>
 #include <vector>
 
-#include "Cipher.hpp"
+#include "CipherType.hpp"
+
+typedef enum errors_t {
+    REPEATED_LOGIN_CREATION,
+} errors_t;
 
 class User {
 
@@ -12,10 +16,12 @@ class User {
         std::string lastName;
         std::string email;
         std::string password;
-        std::vector<Cipher> encryptions;
+        std::vector<CipherInfo> ciphers;
 
     public:
         User(std::string firstName, std::string getLastName, std::string email, std::string password);
+
+        User(std::string filename);
 
         std::string getFirstName();
 
@@ -23,13 +29,15 @@ class User {
 
         std::string getEmail();
 
-        std::string xorEncryptPasswordDriver(std::string plaintext, std::string key);
+        std::string xorEncryptPasswordDriver(std::string loginName, std::string plaintext, std::string key);
 
         std::string xorDecryptPasswordDriver(std::string ciphertext, std::string key);
 
-        std::string xorAdvEncryptPasswordDriver(std::string plaintext, std::string key);
+        std::string xorAdvEncryptPasswordDriver(std::string loginName, std::string plaintext, std::string key);
         
         std::string xorAdvDecryptPasswordDriver(std::string ciphertext, std::string key);
+
+        void SaveUserData();
 };
 
 #endif
