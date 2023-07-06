@@ -147,6 +147,28 @@ int main() {
     cout << " (Make sure that you encrypt and decrypt properly) " << endl;
     cout << "---------------------------------------------------" << endl;
 
+    /* Changes
+    The intent is to be able to call this function (which we'll rename to aes_encrypt_manager (or similiar)) from the user class.
+    We should be able to pass in 2 string, the message to be encrypted, and the key. To develop with this in mind, just sent
+    two varibale at the start of this function and work as if those are the paramters.
+    Like:
+    std::string plaintext = "password123";
+    std::string key = "key";
+
+    Then, just output to the terminal the encrypted text after saving it to a string varibale (that we will later return to the user class)
+    Then, when you decrypt, follow the same process, just take whatever you saved in the output variable in this file as
+    the cipher text for the decrypt file
+    Like:
+    std::string ciphertext = <what ever you outputte>
+    std::string key = "key";
+
+    Note, it may be easier to output just a string of hex values, or numbers as the output. If it is easier, just do that.
+    Don't worry about making it into chars or a readable phrase, whatevery is easier for you.
+    
+    
+    
+    */
+
     /* Used for files
     string filename;
     cout << "Enter the filename of the file that you want to encrypt: ";
