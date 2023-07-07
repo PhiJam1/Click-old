@@ -13,6 +13,8 @@
 typedef enum errors_t {
     REPEATED_LOGIN_CREATION,
     DATA_NOT_SAVED,
+    USER_NOT_FOUND,
+    CURRUPT_FILE
 } errors_t;
 
 class User {

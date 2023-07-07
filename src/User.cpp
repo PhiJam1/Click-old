@@ -22,7 +22,43 @@ User::User(std::string firstName, std::string lastName, std::string email, std::
 }
 
 User::User(std::string filename, std::string password) {
-  //todo
+  std::ofstream ifs(filename);
+  if (!ifs.is_open()) {
+    throw USER_NOT_FOUND;
+  }
+
+  std::string delm;
+  ifs >> delm;
+  if (delm != PERSONAL_INFO_START_DELIMITER) {
+    throw CURRUPT_FILE;
+  }
+  ifs >> this-> firstName;
+  ifs >> this-> lastName;
+  ids >> this-> email;
+  ifs >> delm;
+  if (delm != PERSONAL_INFO_END_DELIMITER) {
+    throw CURRUPT_FILE;
+  }
+  while (delm != FILE_ENDING_DELIMITER) {
+    int type = 0;
+    std::string ciphertextTemp;
+    std::string keyTemp;
+    std::string loginNameTemp;
+
+    ifs >> type;
+    ifs >> ciphertextTemp;
+    ifs >> keyTemp;
+    ifs >> loginNameTemp;
+
+    ifs >> delm;
+    if (delm != CIPHER_STRUCT_ENDING_DELIMITER) {
+      throw CURRUPT_FILE;
+    }
+    ciphers.push_back((CipherInfo) {(CipherType_t) type, ciphertextTemp, keyTemp, loginNameTemp});
+    ifs >> delm;
+  }
+
+  this->password = password;
 } 
 
 std::string User::getFirstName() {
