@@ -1,15 +1,16 @@
 #include <iostream>
 #include <vector>
 #include <exception>
-
+#include <fstream>
 #include "User.hpp"
 #include "XOR.hpp"
 /*
 TODO
 
-Make a save data function for a user
 Make a function to get saved data on log in for a user
 Make checks with saved data when making new passwords
+
+Throw in more error checking to verify things like name or passwords don't have werid stuff in them.
 
 */
 //Set the cipher list later
@@ -20,7 +21,7 @@ User::User(std::string firstName, std::string lastName, std::string email, std::
   this->password = password;
 }
 
-User::User(std::string filename) {
+User::User(std::string filename, std::string password) {
   //todo
 } 
 
@@ -114,5 +115,22 @@ std::string User::xorAdvDecryptPasswordDriver(std::string ciphertext, std::strin
 }
 
 void User::SaveUserData() {
-  //todo
+  std::string output_filename = "USERDATA/" + email + ".cli";
+  std::ofstream ofs(output_filename);
+  if (!ofs.is_open()) {
+    throw DATA_NOT_SAVED;
+  }
+  ofs << PERSONAL_INFO_START_DELIMITER;
+  ofs << firstName << " " << lastName << " " << email << "\n";
+  ofs << PERSONAL_INFO_END_DELIMITER;
+  for (int i = 0; i < ciphers.size(); i++) {
+    ofs << ciphers.at(i).type << "\n";
+    ofs << ciphers.at(i).ciphertext << "\n";
+    ofs << ciphers.at(i).key << "\n";
+    ofs << ciphers.at(i).loginName << "\n";
+    ofs << CIPHER_STRUCT_ENDING_DELIMITER;
+  }
+  ofs << FILE_ENDING_DELIMITER;
+
+
 }

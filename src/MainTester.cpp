@@ -26,11 +26,12 @@ int main() {
     std::string ciphertext = p1.xorEncryptPasswordDriver(loginName, "password123", "key");
     outFile << "ciphertext: " << ciphertext << std::endl;
     try {
-        ciphertext = p1.xorEncryptPasswordDriver(loginName, "password123", "key");
+        ciphertext = p1.xorEncryptPasswordDriver(loginName + "netfile", "password123", "key");
     } catch (errors_t ex) {
         std::cout << "You already have a login for this account saved.\n";
     }
     p1.xorDecryptPasswordDriver("Goog", "je");
+    p1.SaveUserData();
 
     outFile.close();
     return 0;

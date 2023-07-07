@@ -5,8 +5,14 @@
 
 #include "CipherType.hpp"
 
+#define PERSONAL_INFO_START_DELIMITER "++\n"
+#define PERSONAL_INFO_END_DELIMITER "##\n"
+#define CIPHER_STRUCT_ENDING_DELIMITER  "@@\n"
+#define FILE_ENDING_DELIMITER "--"
+
 typedef enum errors_t {
     REPEATED_LOGIN_CREATION,
+    DATA_NOT_SAVED,
 } errors_t;
 
 class User {
@@ -21,7 +27,7 @@ class User {
     public:
         User(std::string firstName, std::string getLastName, std::string email, std::string password);
 
-        User(std::string filename);
+        User(std::string filename, std::string password);
 
         std::string getFirstName();
 
