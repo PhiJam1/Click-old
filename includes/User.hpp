@@ -24,10 +24,11 @@ class User {
         std::string lastName;
         std::string email;
         std::string password;
+        std::string salt;
         std::vector<CipherInfo> ciphers;
 
     public:
-        User(std::string firstName, std::string getLastName, std::string email, std::string password);
+        User(std::string firstName, std::string getLastName, std::string email, std::string password, std::string salt);
 
         User(std::string filename, std::string password);
 
@@ -37,6 +38,9 @@ class User {
 
         std::string getEmail();
 
+        std::string ChangeEmail(std::string new_email);
+
+        // for xor, using the user's plaintext password as the key is probably enough
         std::string xorEncryptPasswordDriver(std::string loginName, std::string plaintext, std::string key);
 
         std::string xorDecryptPasswordDriver(std::string ciphertext, std::string key);

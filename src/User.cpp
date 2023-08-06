@@ -14,19 +14,20 @@ Throw in more error checking to verify things like name or passwords don't have 
 
 */
 //Set the cipher list later
-User::User(std::string firstName, std::string lastName, std::string email, std::string password) {
+User::User(std::string firstName, std::string lastName, std::string email, std::string password std::string salt) {
   this->firstName = firstName;
   this->lastName = lastName;
   this->email = email;
   this->password = password;
+  this->salt = salt;
 }
 
 User::User(std::string filename, std::string password) {
-  std::ofstream ifs(filename);
+  std::ifstream ifs("USERDATA/" + filename + "cli");
   if (!ifs.is_open()) {
     throw USER_NOT_FOUND;
   }
-
+  
   std::string delm;
   ifs >> delm;
   if (delm != PERSONAL_INFO_START_DELIMITER) {
@@ -34,7 +35,7 @@ User::User(std::string filename, std::string password) {
   }
   ifs >> this-> firstName;
   ifs >> this-> lastName;
-  ids >> this-> email;
+  ifs >> this-> email;
   ifs >> delm;
   if (delm != PERSONAL_INFO_END_DELIMITER) {
     throw CURRUPT_FILE;
@@ -49,7 +50,6 @@ User::User(std::string filename, std::string password) {
     ifs >> ciphertextTemp;
     ifs >> keyTemp;
     ifs >> loginNameTemp;
-
     ifs >> delm;
     if (delm != CIPHER_STRUCT_ENDING_DELIMITER) {
       throw CURRUPT_FILE;
