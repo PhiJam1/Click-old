@@ -4,8 +4,8 @@ CXX_FLAGS= -Iincludes -std=c++20 -g
 exec: bin/exec
 	bin/exec
 
-bin/exec: ./src/MainTester.cpp ./src/User.cpp ./src/XOR.cpp
-	$(CXX) $(CXX_FLAGS) ./src/MainTester.cpp ./src/User.cpp ./src/XOR.cpp -o $@
+bin/exec: ./src/Main.cpp ./src/bcrypt.cpp  ./src/blowfish_b.cpp ./src/MainUtilities.cpp
+	$(CXX) $(CXX_FLAGS) ./src/Main.cpp ./src/blowfish_b.cpp ./src/MainUtilities.cpp ./src/bcrypt.cpp -o $@
 
 .DEFAULT_GOAL := exec
 .PHONY: exec
