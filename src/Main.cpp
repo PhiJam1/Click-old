@@ -7,12 +7,12 @@ int main() {
     // Check for returning user or new
     int selection = 0;
     while (selection != 1 && selection != 2) {
-        std::cout << "Select\nLogin (1)\nCreate Account(2)\n";
+        std::cout << "Login (1)\nCreate Account(2)\nSelection: ";
         std::cin >> selection;
     }
 
     // call the correct function for this user
     if (!(selection == 1 ? Login() : NewAccount())) {
-        return 1;
+        return 0;
     };
 }
