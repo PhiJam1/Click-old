@@ -320,7 +320,6 @@ encode_base64(u_int8_t *buffer, u_int8_t *data, u_int16_t len)
 
 std::string bcrypt::generateHash(const std::string &password, unsigned int rounds) {
     char salt[_SALT_LEN];
-
     unsigned char seed[17]{};
 	arc4random_init();
 	

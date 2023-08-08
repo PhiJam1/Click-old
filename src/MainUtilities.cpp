@@ -10,6 +10,41 @@
 #include "MainUtilities.hpp"
 
 bool Login() {
+    // user information
+    std::string first_name = " ";
+    std::string last_name = " ";
+    std::string email = " ";
+    std::string password = " ";
+
+    while (1) {
+        std::cout << "Enter email: ";
+        std::cin >> email;
+        std::cout << "Enter password: ";
+        std::cin >> password;
+        
+        // get the password hash for this email
+        std::ifstream ifs{CRED_FILENAME};
+        std::string buff;
+        std::string tmp_email = "";
+        std::string hash;
+        std::string salt;
+        while (ifs.good()) {
+            ifs >> buff; // the --
+            ifs >> first_name;
+            ifs >> last_name;
+            ifs >> hash;
+            ifs >> salt;
+            ifs >> tmp_email;
+            if (tmp_email == email) {
+                // check the passwords
+                if (bcrypt::validatePassword(password + salt, hash)) {
+                    std::cout << "Welcome " + first_name << std::endl;
+                    return true;
+                }
+            }
+        }
+        std::cout << "Invalid\n";
+    }
     return false;
 }
 
@@ -70,7 +105,6 @@ bool NewAccount() {
     << hash << "\n" << salt << "\n" << email << "\n";
     ofs.close();
     // redirect to the login page
-    return true;
     return Login();
 }
 
