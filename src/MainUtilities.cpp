@@ -43,13 +43,19 @@ bool Login() {
                 }
             }
         }
-        std::cout << "Invalid\n";
+        std::cout << "Invalid Login\nTry Again (1)\nCreate Account (2)\nSelection: ";
+        int selection;
+        cin << selection;
+        if (selection == 2) {
+            return NewAccount();
+        }
     }
     return false;
 }
 
 bool NewAccount() {
     // user information
+    std::cout << "Creating a new account\n";
     std::string first_name = " ";
     std::string last_name = " ";
     std::string email = " ";
@@ -105,6 +111,7 @@ bool NewAccount() {
     << hash << "\n" << salt << "\n" << email << "\n";
     ofs.close();
     // redirect to the login page
+    std::cout << "You'll be redirected to the login page\n";
     return Login();
 }
 
@@ -162,7 +169,9 @@ bool EmailInUse(std::string email) {
     }
     return false;
 }
-
+// note, these random  numbers aren't secure, but that's fine because
+// we can still ensure security if the salt is breached. Also, we store
+// the salt as plaintext next to the password hash, so its not really a secret.
 std::string GenSalt() {
     srand((int) time(0));
     int len = (rand() % 10) + 5; // length will vary from 5 to 14 inclusive
