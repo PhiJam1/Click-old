@@ -40,7 +40,7 @@ User* Login(bool new_user) {
             if (tmp_email == email) {
                 // check the passwords
                 if (bcrypt::validatePassword(password + salt, hash)) {
-                    std::cout << "Welcome " + first_name << std::endl;
+                    std::cout << "Welcome " + first_name << std::endl; 
                     // construct a new user object and send back the address
                     User* user = nullptr;
                     if (new_user) {

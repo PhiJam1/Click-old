@@ -5,9 +5,9 @@
 
 #include "CipherType.hpp"
 
-#define PERSONAL_INFO_START_DELIMITER "++\n"
-#define PERSONAL_INFO_END_DELIMITER "##\n"
-#define CIPHER_STRUCT_ENDING_DELIMITER  "@@\n"
+#define PERSONAL_INFO_START_DELIMITER "++"
+#define PERSONAL_INFO_END_DELIMITER "##"
+#define CIPHER_STRUCT_ENDING_DELIMITER  "@@"
 #define FILE_ENDING_DELIMITER "--"
 
 typedef enum errors_t {
@@ -52,6 +52,8 @@ class User {
         void SaveUserData();
 
         void CreateCipher();
+
+        void RetrievePassword();
 };
 
 #endif

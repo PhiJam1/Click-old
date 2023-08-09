@@ -1,6 +1,10 @@
 #include <iostream>
 #include "MainUtilities.hpp"
 #include "bcrypt.h"
+/*
+todo: default the filename constructor of the user class to handle the case of no saved data
+todo: login page does not make all emails entered lowercase
+*/
 int main() {
     std::cout << "Greetings To Click" << std::endl;
 
@@ -42,13 +46,14 @@ int main() {
                 user->CreateCipher();
                 break;
             case 2:
+                user->RetrievePassword();
                 break;
             case 3:
                 break;
             case 4:
                 break;
             case 5:
-                break;
+                return 0;
             default:
                 std::cout << "Invalid Selection" << std::endl;
         }

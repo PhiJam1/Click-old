@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <exception>
+#include <sstream>
 #include <fstream>
 #include "User.hpp"
 #include "XOR.hpp"
@@ -23,8 +24,9 @@ User::User(std::string firstName, std::string lastName, std::string email, std::
 }
 
 User::User(std::string filename, std::string password) {
-  std::ifstream ifs("USERDATA/" + filename + "cli");
+  std::ifstream ifs("USERDATA/" + filename + ".cli");
   if (!ifs.is_open()) {
+    std::cout << "User not found\n";
     throw USER_NOT_FOUND;
   }
   
@@ -36,25 +38,22 @@ User::User(std::string filename, std::string password) {
   ifs >> this-> firstName;
   ifs >> this-> lastName;
   ifs >> this-> email;
-  ifs >> delm;
-  if (delm != PERSONAL_INFO_END_DELIMITER) {
-    throw CURRUPT_FILE;
-  }
+  std::string cipher = "";
+  std::cout << firstName << " " << lastName << " " << email << "\n\n";
   while (delm != FILE_ENDING_DELIMITER) {
     int type = 0;
-    std::string ciphertextTemp;
-    std::string keyTemp;
+    std::string ciphertextTemp = "";
     std::string loginNameTemp;
 
     ifs >> type;
-    ifs >> ciphertextTemp;
-    ifs >> keyTemp;
+    std::cout << "type; " << type << " login name: ";
     ifs >> loginNameTemp;
-    ifs >> delm;
-    if (delm != CIPHER_STRUCT_ENDING_DELIMITER) {
-      throw CURRUPT_FILE;
+    std::cout << loginNameTemp << std::endl;
+    while (ciphertextTemp != "-@") {
+      cipher += ciphertextTemp + " ";
+      ifs >> ciphertextTemp;
     }
-    ciphers.push_back((CipherInfo) {(CipherType_t) type, ciphertextTemp, keyTemp, loginNameTemp});
+    ciphers.push_back((CipherInfo) {(CipherType_t) type, loginNameTemp, cipher});
     ifs >> delm;
   }
 
@@ -86,7 +85,7 @@ std::string User::xorEncryptPasswordDriver(std::string loginName, std::string pl
   std::string ciphertext = xorEncryptPassword(plaintext, key);
 
   //return with success message
-  ciphers.push_back((CipherInfo) {XOR, ciphertext, key, loginName});
+  ciphers.push_back((CipherInfo) {XOR, ciphertext, loginName});
   return ciphertext;
 }
 
@@ -156,16 +155,14 @@ void User::SaveUserData() {
   if (!ofs.is_open()) {
     throw DATA_NOT_SAVED;
   }
-  ofs << PERSONAL_INFO_START_DELIMITER;
+  ofs << PERSONAL_INFO_START_DELIMITER << "\n";
   ofs << firstName << " " << lastName << " " << email << "\n";
-  ofs << PERSONAL_INFO_END_DELIMITER;
   for (int i = 0; i < ciphers.size(); i++) {
     ofs << ciphers.at(i).type << "\n";
     ofs << ciphers.at(i).loginName << "\n";
-    ofs << ciphers.at(i).ciphertext << "\n";
-    ofs << CIPHER_STRUCT_ENDING_DELIMITER;
+    ofs << ciphers.at(i).ciphertext << "-@\n";
   }
-  ofs << FILE_ENDING_DELIMITER;
+  ofs << FILE_ENDING_DELIMITER << "\n";
 }
 
 void User::CreateCipher() {
@@ -175,7 +172,7 @@ void User::CreateCipher() {
   std::cout << "For what service is this for: ";
   std::cin >> login_name;
   int selection = -1;
-  while (selection != 1 || selection != 2 || selection != 3) {
+  while (selection != 1 && selection != 2 && selection != 3) {
     std::cout << "What type of encryption do you want\n";
     std::cout << "XOR (1)\nAES (2)\nBlowfish (3)\nSelection: ";
     std::cin >> selection;
@@ -190,7 +187,35 @@ void User::CreateCipher() {
   std::string plaintext;
   std::cout << "Enter password: ";
   std::cin >> plaintext;
-  std::string ciphertext = advancedXorEncryptionPassword(plaintext, password.substring(0,5));
+  std::string ciphertext = advancedXorEncryptionPassword(plaintext, password.substr(0,5));
   ciphers.push_back((CipherInfo) {type, login_name, ciphertext});
   SaveUserData();
+}
+
+void User::RetrievePassword() {
+  std::cout << "Here's a list of saved logins.\n";
+  int selection = -1;
+  while (selection < 0 || selection > ciphers.size()) {
+    for (int i = 0; i < ciphers.size(); i++) {
+      std::cout << ciphers.at(i).loginName << " (" << i + 1 << ")\n";
+    }
+    std::cout << "Selection: ";
+    std::cin >> selection;
+  }
+  selection--; // to make it work like an index
+  std::string plaintext = "it didnt work";
+  if (ciphers.at(selection).type == XOR) {
+    std::cout << "CIPHER TEXT: " << ciphers.at(selection).ciphertext << std::endl;
+    std::vector<int> ciphertext;
+    std::stringstream iss(ciphers.at(selection).ciphertext);
+    int num = -1;
+    while (iss >> num) {
+      ciphertext.push_back(num);
+    }
+    plaintext = advancedXorDecryptionPassword(ciphertext, password.substr(0, 5));
+  } else {
+    std::cout << "That is not yet supported";
+  }
+  std::cout << "Here is the password you saved: " << plaintext << std::endl;
+
 }
