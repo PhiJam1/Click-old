@@ -1,5 +1,7 @@
 #ifndef CIPHERTYPE_HPP
 #define CIPHERTYPE_HPP
+
+
 typedef enum {
     XOR,
     AES,
@@ -8,9 +10,8 @@ typedef enum {
 
 typedef struct {
     CipherType_t type;
-    std::string ciphertext;
-    std::string key;
     std::string loginName;
+    std::string ciphertext;
 } CipherInfo;
 
 #endif

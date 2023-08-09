@@ -14,7 +14,7 @@ Throw in more error checking to verify things like name or passwords don't have 
 
 */
 //Set the cipher list later
-User::User(std::string firstName, std::string lastName, std::string email, std::string password std::string salt) {
+User::User(std::string firstName, std::string lastName, std::string email, std::string password, std::string salt) {
   this->firstName = firstName;
   this->lastName = lastName;
   this->email = email;
@@ -149,7 +149,7 @@ std::string User::xorAdvDecryptPasswordDriver(std::string ciphertext, std::strin
   //return with success message
   return plaintext;
 }
-
+// this will overwrite everything alr there
 void User::SaveUserData() {
   std::string output_filename = "USERDATA/" + email + ".cli";
   std::ofstream ofs(output_filename);
@@ -161,12 +161,36 @@ void User::SaveUserData() {
   ofs << PERSONAL_INFO_END_DELIMITER;
   for (int i = 0; i < ciphers.size(); i++) {
     ofs << ciphers.at(i).type << "\n";
-    ofs << ciphers.at(i).ciphertext << "\n";
-    ofs << ciphers.at(i).key << "\n";
     ofs << ciphers.at(i).loginName << "\n";
+    ofs << ciphers.at(i).ciphertext << "\n";
     ofs << CIPHER_STRUCT_ENDING_DELIMITER;
   }
   ofs << FILE_ENDING_DELIMITER;
+}
 
-
+void User::CreateCipher() {
+  CipherType_t type;
+  std::cout << "Let's create a new cipher\n";
+  std::string login_name;
+  std::cout << "For what service is this for: ";
+  std::cin >> login_name;
+  int selection = -1;
+  while (selection != 1 || selection != 2 || selection != 3) {
+    std::cout << "What type of encryption do you want\n";
+    std::cout << "XOR (1)\nAES (2)\nBlowfish (3)\nSelection: ";
+    std::cin >> selection;
+  }
+  if (selection == 1) {
+    type = XOR;
+  } else if (selection = 2) {
+    type = AES;
+  } else {
+    type = BLOWFISH;
+  }
+  std::string plaintext;
+  std::cout << "Enter password: ";
+  std::cin >> plaintext;
+  std::string ciphertext = advancedXorEncryptionPassword(plaintext, password.substring(0,5));
+  ciphers.push_back((CipherInfo) {type, login_name, ciphertext});
+  SaveUserData();
 }

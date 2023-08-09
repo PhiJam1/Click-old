@@ -98,5 +98,7 @@
         "typeindex": "cpp",
         "valarray": "cpp",
         "variant": "cpp"
-    }
+    },
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": "active"
 }

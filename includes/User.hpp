@@ -50,6 +50,8 @@ class User {
         std::string xorAdvDecryptPasswordDriver(std::string ciphertext, std::string key);
 
         void SaveUserData();
+
+        void CreateCipher();
 };
 
 #endif

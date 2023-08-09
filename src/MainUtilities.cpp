@@ -6,10 +6,12 @@
 #include <fstream>
 #include <ios>
 #include <bits/stdc++.h>
+
+#include "User.hpp"
 #include "bcrypt.h"
 #include "MainUtilities.hpp"
 
-bool Login() {
+User* Login(bool new_user) {
     // user information
     std::string first_name = " ";
     std::string last_name = " ";
@@ -39,21 +41,28 @@ bool Login() {
                 // check the passwords
                 if (bcrypt::validatePassword(password + salt, hash)) {
                     std::cout << "Welcome " + first_name << std::endl;
-                    return true;
+                    // construct a new user object and send back the address
+                    User* user = nullptr;
+                    if (new_user) {
+                        user = new User(first_name, last_name, email, password, salt);
+                    } else {
+                        user = new User(email, password);
+                    }
+                    return user;
                 }
             }
         }
         std::cout << "Invalid Login\nTry Again (1)\nCreate Account (2)\nSelection: ";
         int selection;
-        cin << selection;
+        std::cin >> selection;
         if (selection == 2) {
             return NewAccount();
         }
     }
-    return false;
+    return nullptr;
 }
 
-bool NewAccount() {
+User* NewAccount() {
     // user information
     std::cout << "Creating a new account\n";
     std::string first_name = " ";
@@ -86,7 +95,7 @@ bool NewAccount() {
                 std::cin >> selection;
             }
             if (selection == 1) {
-                return Login();
+                return Login(false);
             } else {
                 email = " ";
             }
@@ -104,7 +113,7 @@ bool NewAccount() {
     // Save the hash, falsesalt, and other user data
     std::ofstream ofs(CRED_FILENAME, std::ios::out | std::ios::app);
     if (!ofs.is_open()) {
-        return false;
+        return nullptr;
     }
     ofs << "--\n" <<
     first_name << "\n" << last_name << "\n" 
@@ -112,7 +121,7 @@ bool NewAccount() {
     ofs.close();
     // redirect to the login page
     std::cout << "You'll be redirected to the login page\n";
-    return Login();
+    return Login(true);
 }
 
 bool ValidPassword(std::string password) {

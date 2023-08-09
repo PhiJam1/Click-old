@@ -19,9 +19,10 @@ int main() {
     }
 
     // call the correct function for this user
-    if (!(selection == 1 ? Login() : NewAccount())) {
+    User* user = selection == 1 ? Login(false) : NewAccount();
+    if (user == nullptr) {
         return 0;
-    };
+    }
 
     /*  Main page options
         1. Create a new cipher
@@ -30,14 +31,15 @@ int main() {
         4. Make a change to your personal information
         5. Exit
     */
+
    while (1) {
-        std::cout << "Main Page Options:\nCreate Cipher (1))\nRetrieve Password (2)\n";
+        std::cout << "Main Page Options:\nCreate Cipher (1)\nRetrieve Password (2)\n";
         std::cout << "Delete Data (3)\nChange Account Information(4)\nExit (5)\nSelection: ";
         selection = -1;
+        std::cin >> selection;
         switch (selection) {
             case 1:
-                break;
-            case 2:
+                user->CreateCipher();
                 break;
             case 2:
                 break;
@@ -48,7 +50,7 @@ int main() {
             case 5:
                 break;
             default:
-                std::cout << "Invalid Selection" std::endl;
+                std::cout << "Invalid Selection" << std::endl;
         }
    }
 
