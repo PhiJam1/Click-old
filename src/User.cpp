@@ -3,6 +3,8 @@
 #include <exception>
 #include <sstream>
 #include <fstream>
+#include <cstdio>
+
 #include "User.hpp"
 #include "XOR.hpp"
 /*
@@ -30,33 +32,34 @@ User::User(std::string filename, std::string password) {
     throw USER_NOT_FOUND;
   }
   
-  std::string delm;
-  ifs >> delm;
-  if (delm != PERSONAL_INFO_START_DELIMITER) {
-    throw CURRUPT_FILE;
-  }
-  ifs >> this-> firstName;
-  ifs >> this-> lastName;
-  ifs >> this-> email;
-  std::string cipher = "";
-  std::cout << firstName << " " << lastName << " " << email << "\n\n";
-  while (delm != FILE_ENDING_DELIMITER) {
-    int type = 0;
-    std::string ciphertextTemp = "";
-    std::string loginNameTemp;
+  // data safe to be stored as plaintext
+  ifs >> firstName;
+  ifs >> lastName;
+  ifs >> email;
+  ifs >> salt;
 
-    ifs >> type;
-    std::cout << "type; " << type << " login name: ";
-    ifs >> loginNameTemp;
-    std::cout << loginNameTemp << std::endl;
-    while (ciphertextTemp != "-@") {
-      cipher += ciphertextTemp + " ";
-      ifs >> ciphertextTemp;
+  // Get ciphers
+  std::string buff = "";
+  while (ifs.good()) {
+    CipherType_t type = XOR;
+    std::string loginName = "";
+    std::string ciphertext = "";
+    ifs >> buff;
+    type = (CipherType_t) stoi(buff);
+    ifs >> loginName;
+
+    ifs >> buff;
+    while (1) {
+      ciphertext += buff + " ";
+      ifs >> buff;
+      std::cout << buff << " ";
+      if (buff == "@") {
+        std::cout << "GOT ONE \n\n\n";
+        break;
+      }
     }
-    ciphers.push_back((CipherInfo) {(CipherType_t) type, loginNameTemp, cipher});
-    ifs >> delm;
+    ciphers.push_back({type, loginName, ciphertext});
   }
-
   this->password = password;
 } 
 
@@ -150,19 +153,17 @@ std::string User::xorAdvDecryptPasswordDriver(std::string ciphertext, std::strin
 }
 // this will overwrite everything alr there
 void User::SaveUserData() {
-  std::string output_filename = "USERDATA/" + email + ".cli";
+  const char* output_filename = "USERDATA/phijam.cli";
   std::ofstream ofs(output_filename);
   if (!ofs.is_open()) {
     throw DATA_NOT_SAVED;
   }
-  ofs << PERSONAL_INFO_START_DELIMITER << "\n";
-  ofs << firstName << " " << lastName << " " << email << "\n";
+  ofs << firstName << " " << lastName << " " << email << " " << salt << "\n";
   for (int i = 0; i < ciphers.size(); i++) {
-    ofs << ciphers.at(i).type << "\n";
+    ofs << ciphers.at(i).type << " ";
     ofs << ciphers.at(i).loginName << "\n";
-    ofs << ciphers.at(i).ciphertext << "-@\n";
+    ofs << ciphers.at(i).ciphertext << "@\n";
   }
-  ofs << FILE_ENDING_DELIMITER << "\n";
 }
 
 void User::CreateCipher() {

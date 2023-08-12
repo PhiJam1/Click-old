@@ -14,7 +14,7 @@ typedef enum errors_t {
     REPEATED_LOGIN_CREATION,
     DATA_NOT_SAVED,
     USER_NOT_FOUND,
-    CURRUPT_FILE
+    CORRUPT_FILE
 } errors_t;
 
 class User {
@@ -28,6 +28,7 @@ class User {
         std::vector<CipherInfo> ciphers;
 
     public:
+
         User(std::string firstName, std::string getLastName, std::string email, std::string password, std::string salt);
 
         User(std::string filename, std::string password);

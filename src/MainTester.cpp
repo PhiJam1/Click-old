@@ -2,6 +2,7 @@
 #include <fstream>
 #include <bcrypt.h>
 #include <string>
+#include <cstdio>
 #include "User.hpp"
 
 /*
@@ -34,9 +35,13 @@ int main() {
     // p1.xorDecryptPasswordDriver("Goog", "je");
     // p1.SaveUserData();
 
-    std::string password = "password";
-    std::string hash = bcrypt::generateHash(password);
-    std::cout << "hash: " << hash << std::endl;
+    const char* output_filename = "USERDATA/phijam.clb";
+    FILE* fp = fopen(output_filename, "rb");
+    User p1;
+    std
+    fread(&p1, sizeof(p1), 1, fp);
+    std::cout << p1.firstName << std::endl;
+
     return 0;
 
 }
