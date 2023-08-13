@@ -12,6 +12,7 @@ TODO
 
 Make a function to get saved data on log in for a user
 Make checks with saved data when making new passwords
+Call save data whenever the a user goes out of scope
 
 Throw in more error checking to verify things like name or passwords don't have werid stuff in them.
 
@@ -52,15 +53,16 @@ User::User(std::string filename, std::string password) {
     while (1) {
       ciphertext += buff + " ";
       ifs >> buff;
-      std::cout << buff << " ";
       if (buff == "@") {
-        std::cout << "GOT ONE \n\n\n";
         break;
       }
     }
     ciphers.push_back({type, loginName, ciphertext});
+    std::cout << type << "   " << loginName << "     " << ciphertext << std::endl;
   }
+  std::cout << "Here1\n";
   this->password = password;
+  std::cout << "here2\n";
 } 
 
 std::string User::getFirstName() {
@@ -158,11 +160,11 @@ void User::SaveUserData() {
   if (!ofs.is_open()) {
     throw DATA_NOT_SAVED;
   }
-  ofs << firstName << " " << lastName << " " << email << " " << salt << "\n";
+  ofs << firstName << " " << lastName << " " << email << " " << salt;
   for (int i = 0; i < ciphers.size(); i++) {
-    ofs << ciphers.at(i).type << " ";
+    ofs << "\n" << ciphers.at(i).type << " ";
     ofs << ciphers.at(i).loginName << "\n";
-    ofs << ciphers.at(i).ciphertext << "@\n";
+    ofs << ciphers.at(i).ciphertext << "@";
   }
 }
 
