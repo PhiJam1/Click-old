@@ -10,7 +10,7 @@
 /*
 TODO
 
-Make a function to get saved data on log in for a user
+Make a function call to get saved data on log in for a user
 Make checks with saved data when making new passwords
 Call save data whenever the a user goes out of scope
 
@@ -44,10 +44,12 @@ User::User(std::string filename, std::string password) {
   while (ifs.good()) {
     CipherType_t type = XOR;
     std::string loginName = "";
+    std::string user_name = "";
     std::string ciphertext = "";
     ifs >> buff;
     type = (CipherType_t) stoi(buff);
     ifs >> loginName;
+    ifs >> user_name;
 
     ifs >> buff;
     while (1) {
@@ -57,12 +59,10 @@ User::User(std::string filename, std::string password) {
         break;
       }
     }
-    ciphers.push_back({type, loginName, ciphertext});
-    std::cout << type << "   " << loginName << "     " << ciphertext << std::endl;
+    ciphers.push_back({type, loginName, user_name, ciphertext});
+    //std::cout << type << "   " << loginName << "     " << ciphertext << std::endl;
   }
-  std::cout << "Here1\n";
   this->password = password;
-  std::cout << "here2\n";
 } 
 
 std::string User::getFirstName() {
@@ -76,11 +76,11 @@ std::string User::getLastName() {
 std::string User::getEmail() {
   return this->email;
 }
-
-std::string User::xorEncryptPasswordDriver(std::string loginName, std::string plaintext, std::string key) {
+// this function is not being used
+std::string User::xorEncryptPasswordDriver(std::string service_name, std::string plaintext, std::string key) {
   //go through this users ciphers list and see if there is alr one for this
   for (int i = 0; i < ciphers.size(); i++) {
-    if (ciphers.at(i).loginName == loginName) {
+    if (ciphers.at(i).service_name == service_name) {
       throw REPEATED_LOGIN_CREATION;
     }
   }
@@ -90,7 +90,7 @@ std::string User::xorEncryptPasswordDriver(std::string loginName, std::string pl
   std::string ciphertext = xorEncryptPassword(plaintext, key);
 
   //return with success message
-  ciphers.push_back((CipherInfo) {XOR, ciphertext, loginName});
+  // ciphers.push_back((CipherInfo) {XOR, ciphertext, loginName});
   return ciphertext;
 }
 
@@ -118,10 +118,10 @@ std::string User::xorDecryptPasswordDriver(std::string ciphertext, std::string k
 }
 
 
-std::string User::xorAdvEncryptPasswordDriver(std::string loginName, std::string plaintext, std::string key) {
+std::string User::xorAdvEncryptPasswordDriver(std::string service_name, std::string plaintext, std::string key) {
   //go through this users ciphers list and see if there is alr one for this
   for (int i = 0; i < ciphers.size(); i++) {
-    if (ciphers.at(i).loginName == loginName) {
+    if (ciphers.at(i).service_name == service_name) {
       throw REPEATED_LOGIN_CREATION;
     }
   }
@@ -163,7 +163,8 @@ void User::SaveUserData() {
   ofs << firstName << " " << lastName << " " << email << " " << salt;
   for (int i = 0; i < ciphers.size(); i++) {
     ofs << "\n" << ciphers.at(i).type << " ";
-    ofs << ciphers.at(i).loginName << "\n";
+    ofs << ciphers.at(i).service_name << " ";
+    ofs << ciphers.at(i).username << "\n";
     ofs << ciphers.at(i).ciphertext << "@";
   }
 }
@@ -187,11 +188,14 @@ void User::CreateCipher() {
   } else {
     type = BLOWFISH;
   }
+  std::string user_name = "";
+  std::cout << "Enter user name: ";
+  std::cin >> user_name;
   std::string plaintext;
   std::cout << "Enter password: ";
   std::cin >> plaintext;
   std::string ciphertext = advancedXorEncryptionPassword(plaintext, password.substr(0,5));
-  ciphers.push_back((CipherInfo) {type, login_name, ciphertext});
+  ciphers.push_back((CipherInfo) {type, login_name, user_name, ciphertext});
   SaveUserData();
 }
 
@@ -200,7 +204,7 @@ void User::RetrievePassword() {
   int selection = -1;
   while (selection < 0 || selection > ciphers.size()) {
     for (int i = 0; i < ciphers.size(); i++) {
-      std::cout << ciphers.at(i).loginName << " (" << i + 1 << ")\n";
+      std::cout << ciphers.at(i).service_name << " (" << i + 1 << ")\n";
     }
     std::cout << "Selection: ";
     std::cin >> selection;
@@ -219,6 +223,7 @@ void User::RetrievePassword() {
   } else {
     std::cout << "That is not yet supported";
   }
-  std::cout << "Here is the password you saved: " << plaintext << std::endl;
+  std::cout << "Username: " << ciphers.at(selection).username << std::endl;
+  std::cout << "Password: " << plaintext << std::endl;
 
 }

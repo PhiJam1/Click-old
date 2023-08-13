@@ -10,7 +10,8 @@ typedef enum {
 
 typedef struct {
     CipherType_t type;
-    std::string loginName;
+    std::string service_name;
+    std::string username;
     std::string ciphertext;
 } CipherInfo;
 
