@@ -55,6 +55,8 @@ class User {
         void CreateCipher();
 
         void RetrievePassword();
+
+        void DeleteData();
 };
 
 #endif

@@ -227,3 +227,13 @@ void User::RetrievePassword() {
   std::cout << "Password: " << plaintext << std::endl;
 
 }
+
+void User::DeleteData() {
+  std::cout << "Which account information do you want removed\n";
+  for (int i = 0; i < ciphers.size(); i++) {
+    std::cout << ciphers.at(i).service_name << " (" << i + 1 << ")\n";
+  }
+  int selection = 0;
+  std::cin >> selection;
+  ciphers.erase(ciphers.begin() + --selection);
+}
