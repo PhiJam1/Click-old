@@ -155,7 +155,7 @@ std::string User::xorAdvDecryptPasswordDriver(std::string ciphertext, std::strin
 }
 // this will overwrite everything alr there
 void User::SaveUserData() {
-  const char* output_filename = "USERDATA/phijam.cli";
+  std::string output_filename = "USERDATA/" + email + ".cli";
   std::ofstream ofs(output_filename);
   if (!ofs.is_open()) {
     throw DATA_NOT_SAVED;
@@ -200,6 +200,10 @@ void User::CreateCipher() {
 }
 
 void User::RetrievePassword() {
+  if (ciphers.size() == 0) {
+    std::cout << "You have no saved ciphers\n";
+    return;
+  }
   std::cout << "Here's a list of saved logins.\n";
   int selection = -1;
   while (selection < 0 || selection > ciphers.size()) {
@@ -229,6 +233,10 @@ void User::RetrievePassword() {
 }
 
 void User::DeleteData() {
+  if (ciphers.size() == 0) {
+    std::cout << "You have no saved ciphers" << std::endl;
+    return;
+  }
   std::cout << "Which account information do you want removed\n";
   for (int i = 0; i < ciphers.size(); i++) {
     std::cout << ciphers.at(i).service_name << " (" << i + 1 << ")\n";

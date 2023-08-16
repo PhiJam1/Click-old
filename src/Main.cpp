@@ -2,18 +2,13 @@
 #include "MainUtilities.hpp"
 #include "bcrypt.h"
 /*
+
 todo: default the filename constructor of the user class to handle the case of no saved data
-todo: login page does not make all emails entered lowercase
+todo: login page does not make all emails entered lowercase\
+
 */
 int main() {
     std::cout << "Greetings To Click" << std::endl;
-
-
-    // std::string hash = bcrypt::generateHash("password");
-    // std::cout << hash << std::endl;
-    // bool val = bcrypt::validatePassword("passwdord","$2b$10$qs2LdjNEhhKmkrm95cjOzO7sGG07yFqin4JUiB42ngWdscYFn/PbC");
-    // if (val) std::cout << "Val\n\n";
-    // return 0;
 
     // Check for returning user or new
     int selection = 0;

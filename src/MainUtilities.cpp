@@ -21,6 +21,10 @@ User* Login(bool new_user) {
     while (1) {
         std::cout << "Enter email: ";
         std::cin >> email;
+
+        // make email fully lower case
+        std::transform(email.begin(), email.end(), email.begin(), [](unsigned char c){ return std::tolower(c); });
+        
         std::cout << "Enter password: ";
         std::cin >> password;
         
@@ -45,6 +49,7 @@ User* Login(bool new_user) {
                     User* user = nullptr;
                     if (new_user) {
                         user = new User(first_name, last_name, email, password, salt);
+                        user->SaveUserData();
                     } else {
                         user = new User(email, password);
                     }

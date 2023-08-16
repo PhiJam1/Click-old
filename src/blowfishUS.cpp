@@ -246,7 +246,7 @@ void keyInit(std::string key) {
     }
 
 }
-/*
+/*githu
     Issue is here. When left has a leading 0, it is left out
     so the substr will not grab that leading 0. we need to pad
     the front with 0s of left and right everywhere.
