@@ -3,7 +3,7 @@
 #include <fstream>
 #include <bits/stdc++.h>
 #include <sstream>
-#if 0
+
 	// Substitution boxes each string is a 32 bit hexadecimal value.
 std::string S[4][256] = { {"d1310ba6", "98dfb5ac", "2ffd72db", "d01adfb7", "b8e1afed",
 							"6a267e96", "ba7c9045", "f12c7f99", "24a19947", "b3916cf7",
@@ -354,10 +354,41 @@ std::string decrypt(std::string plaintext, std::string key) {
     return left + right;
 
 }
+
+
+std::string EncryptDriverPassword(std::string plaintext, std::string key) {
+	// need to get the plaintext to be 8 bytes/char in hex, just require that the key is 4 char
+	while (plaintext.size() % 8 != 0) {
+		plaintext += " ";
+	}
+	std::string plaintext_hex = GetHexString(plaintext);
+	//std::string key_hex = GetHexString(key);
+
+	// get the whole plaintext as a hex string
+	// loop around the hex string and operate on chuncks of 8
+	// return the result 
+	return "Not yet done";
+}
+
+void DecryptDriverPassword() {
+
+}
+
+std::string GetHexString(std::string str) {
+	// convert the string into an int vector (int of each char)
+	// convert (and zero pad if needed) each index and concatancte into a string
+	// ^ ignore that
+	for (int i = 0; i < str.size(); i++) {
+		int dec = (int) str.at(i);
+		// now convert to hex and zero pad if needed
+		
+	}
+}
+
 /*
 	currently only works for 64 bits (8 char)
 */
-int main() {
+void mainT() {
     /*
         For testing, I have the plaintext as 8 bytes of data in hex.
         For use, we'd grab 8 bytes at a time and turn to hex and feed
@@ -368,16 +399,14 @@ int main() {
 
     keyInit(key);
 
-    std::string ciphertext = decrypt(plaintext, key);
+    std::string ciphertext = encrypt(plaintext, key);
 
     std::cout << "cipher text: " << ciphertext << std::endl;
 
     //std::string ciphertext  = "e742800b56d93ff";
     //keyInit(key);
-    //std::string plaintext = decrypt(ciphertext, key);
-    //std::cout << plaintext << std::endl;
+    plaintext = decrypt(ciphertext, key);
+    std::cout << "plaintext: " << plaintext << std::endl;
     
-    return 0;
-
+    return;
 }
-#endif

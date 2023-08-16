@@ -7,16 +7,7 @@
 
 #include "User.hpp"
 #include "XOR.hpp"
-/*
-TODO
 
-Make a function call to get saved data on log in for a user
-Make checks with saved data when making new passwords
-Call save data whenever the a user goes out of scope
-
-Throw in more error checking to verify things like name or passwords don't have werid stuff in them.
-
-*/
 //Set the cipher list later
 User::User(std::string firstName, std::string lastName, std::string email, std::string password, std::string salt) {
   this->firstName = firstName;
