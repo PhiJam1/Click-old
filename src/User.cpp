@@ -229,7 +229,6 @@ void User::RetrievePassword() {
   }
   std::cout << "Username: " << ciphers.at(selection).username << std::endl;
   std::cout << "Password: " << plaintext << std::endl;
-
 }
 
 void User::DeleteData() {
