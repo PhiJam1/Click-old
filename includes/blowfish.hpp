@@ -1,16 +1,14 @@
-#ifndef STRUCTURES_H
-#define STRUCTURES_H
+#ifndef BLOWFISH_H
+#define BLOWFISH_H
 
 #include <string>
 
 
-void f(std::string plaintext);
+std::string f(std::string plaintext);
 
 void generateSubKeys(int *pBoxes);
 
 void encrypt(std::string plaintext);
-
-void f(unsigned char *);
 
 std::string EncryptDriverPassword(std::string plaintext, std::string key);
 

@@ -4,6 +4,7 @@
 #include <bits/stdc++.h>
 #include <sstream>
 
+#include "blowfish.hpp" 
 	// Substitution boxes each string is a 32 bit hexadecimal value.
 std::string S[4][256] = { {"d1310ba6", "98dfb5ac", "2ffd72db", "d01adfb7", "b8e1afed",
 							"6a267e96", "ba7c9045", "f12c7f99", "24a19947", "b3916cf7",
@@ -357,32 +358,40 @@ std::string decrypt(std::string plaintext, std::string key) {
 
 
 std::string EncryptDriverPassword(std::string plaintext, std::string key) {
+	keyInit(key);
 	// need to get the plaintext to be 8 bytes/char in hex, just require that the key is 4 char
 	while (plaintext.size() % 8 != 0) {
 		plaintext += " ";
 	}
 	std::string plaintext_hex = GetHexString(plaintext);
-	//std::string key_hex = GetHexString(key);
-
-	// get the whole plaintext as a hex string
+	std::string key_hex = GetHexString(key);
+	std::string ciphertext = "";
 	// loop around the hex string and operate on chuncks of 8
-	// return the result 
-	return "Not yet done";
+	for (int i = 0; i < plaintext_hex.size(); i += 8) { // there should be no left over
+		ciphertext += encrypt(plaintext_hex.substr(i, 8), key_hex)
+	}
+	return ciphertext;
 }
 
 void DecryptDriverPassword() {
-
-}
+// we will probably have to make a copy of the array keyInit operates on
+} 
 
 std::string GetHexString(std::string str) {
 	// convert the string into an int vector (int of each char)
 	// convert (and zero pad if needed) each index and concatancte into a string
 	// ^ ignore that
+	std::string hex = "";
 	for (int i = 0; i < str.size(); i++) {
 		int dec = (int) str.at(i);
 		// now convert to hex and zero pad if needed
-		
+		std::stringstream sstream;
+		sstream << std::hex << dec;
+		// the zero padding isn't really ever going to be used
+		hex += (sstream.str().size() == 1) ? "0" + sstream.str() : sstream.str();
+		std::cout << hex << std::endl;
 	}
+	return hex;
 }
 
 /*
