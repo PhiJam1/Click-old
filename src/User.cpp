@@ -7,6 +7,7 @@
 
 #include "User.hpp"
 #include "XOR.hpp"
+#include "blowfish.hpp"
 
 //Set the cipher list later
 User::User(std::string firstName, std::string lastName, std::string email, std::string password, std::string salt) {
@@ -169,15 +170,15 @@ void User::CreateCipher() {
   int selection = -1;
   while (selection != 1 && selection != 2 && selection != 3) {
     std::cout << "What type of encryption do you want\n";
-    std::cout << "XOR (1)\nAES (2)\nBlowfish (3)\nSelection: ";
+    std::cout << "XOR (1)\nBlowfish (2))\nAES (3)\nSelection: ";
     std::cin >> selection;
   }
   if (selection == 1) {
     type = XOR;
   } else if (selection = 2) {
-    type = AES;
-  } else {
     type = BLOWFISH;
+  } else {
+    type = AES;
   }
   std::string user_name = "";
   std::cout << "Enter user name: ";
@@ -185,7 +186,12 @@ void User::CreateCipher() {
   std::string plaintext;
   std::cout << "Enter password: ";
   std::cin >> plaintext;
-  std::string ciphertext = advancedXorEncryptionPassword(plaintext, password.substr(0,5));
+  std::string ciphertext = "";
+  if (type == XOR) {
+    ciphertext = advancedXorEncryptionPassword(plaintext, password.substr(0,5));
+  } else if (type == BLOWFISH) {
+    ciphertext = EncryptDriverPassword(plaintext, password.substr(0, 4)); // should rename that function
+  }
   ciphers.push_back((CipherInfo) {type, login_name, user_name, ciphertext});
   SaveUserData();
 }
@@ -207,7 +213,6 @@ void User::RetrievePassword() {
   selection--; // to make it work like an index
   std::string plaintext = "it didnt work";
   if (ciphers.at(selection).type == XOR) {
-    std::cout << "CIPHER TEXT: " << ciphers.at(selection).ciphertext << std::endl;
     std::vector<int> ciphertext;
     std::stringstream iss(ciphers.at(selection).ciphertext);
     int num = -1;
@@ -215,7 +220,10 @@ void User::RetrievePassword() {
       ciphertext.push_back(num);
     }
     plaintext = advancedXorDecryptionPassword(ciphertext, password.substr(0, 5));
-  } else {
+  } else if (ciphers.at(selection).type == BLOWFISH) {
+    plaintext = DecryptDriverPassword(ciphers.at(selection).ciphertext, password.substr(0, 4));
+  } 
+  else {
     std::cout << "That is not yet supported";
   }
   std::cout << "Username: " << ciphers.at(selection).username << std::endl;

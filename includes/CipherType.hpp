@@ -4,8 +4,8 @@
 
 typedef enum {
     XOR,
-    AES,
     BLOWFISH,
+    AES
 } CipherType_t;
 
 typedef struct {
