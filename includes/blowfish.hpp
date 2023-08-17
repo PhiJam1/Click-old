@@ -20,6 +20,4 @@ std::string GetStrFromHex(std::string str);
 
 void KeyCleanUp();
 
-void mainT();
-
 #endif

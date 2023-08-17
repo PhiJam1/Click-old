@@ -348,8 +348,7 @@ std::string decrypt(std::string plaintext, std::string key) {
 std::string EncryptDriverPassword(std::string plaintext, std::string key) {
 	// need to get the plaintext to be 8 bytes/char in hex, just require that the key is 4 char
 	while (plaintext.size() % 8 != 0) {
-		plaintext += "";
-		break;
+		plaintext += " ";
 	}
 	std::string plaintext_hex = GetHexString(plaintext);
 	std::string key_hex = GetHexString(key);
@@ -371,8 +370,7 @@ std::string DecryptDriverPassword(std::string ciphertext, std::string key) {
 	std::string plaintext = "";
 	keyInit(key_hex);
 	for (int i = 0; i < ciphertext.size(); i += 16) {
-		plaintext = decrypt(ciphertext, key_hex);
-		break;
+		plaintext += decrypt(ciphertext.substr(i, 16), key_hex);
 	}
 	KeyCleanUp();
 	// convert this hex to int to char
@@ -405,30 +403,4 @@ std::string GetHexString(std::string str) {
 		//std::cout << hex << std::endl;
 	}
 	return hex;
-}
-
-/*
-	currently only works for 64 bits (8 char)
-*/
-void mainT() {
-    /*
-        For testing, I have the plaintext as 8 bytes of data in hex.
-        For use, we'd grab 8 bytes at a time and turn to hex and feed
-        to functions;
-    */
-    std::string plaintext = "b0a33772e9e0dcf7"; //64 bits (8 bytes), meant to be used as hex
-    std::string key = "61626364"; //32 bits, these are meant to be used as hex
-
-    keyInit(key);
-
-    std::string ciphertext = encrypt(plaintext, key);
-
-    std::cout << "cipher text: " << ciphertext << std::endl;
-
-    //std::string ciphertext  = "e742800b56d93ff";
-    //keyInit(key);
-    plaintext = decrypt(ciphertext, key);
-    std::cout << "plaintext: " << plaintext << std::endl;
-    
-    return;
 }

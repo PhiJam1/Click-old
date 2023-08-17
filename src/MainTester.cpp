@@ -9,7 +9,7 @@
 int main() {
     // mainT();
     // return 0;
-    std::string plaintext = "password";
+    std::string plaintext = "wepassworddddd";
     std::string key = "keyy"; // must be 4 char, 32 bits
 
     std::string ciphertext = EncryptDriverPassword(plaintext, key);
