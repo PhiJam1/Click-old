@@ -221,10 +221,12 @@ std::string S[4][256] = { {"d1310ba6", "98dfb5ac", "2ffd72db", "d01adfb7", "b8e1
                    "299f31d0", "082efa98", "ec4e6c89", "452821e6", "38d01377",
                    "be5466cf", "34e90c6c", "c0ac29b7", "c97c50dd", "3f84d5b5",
                    "b5470917", "9216d5d9", "8979fb1b" };
-
+ std::string p[] = { "243f6a88", "85a308d3", "13198a2e", "03707344", "a4093822",
+                   "299f31d0", "082efa98", "ec4e6c89", "452821e6", "38d01377",
+                   "be5466cf", "34e90c6c", "c0ac29b7", "c97c50dd", "3f84d5b5",
+                   "b5470917", "9216d5d9", "8979fb1b" };
 
 //function that will xor two string hex values
-//todo: NEED TO PAD ENOUGH 0S IN FRONT
 std::string XOR(std::string s1, std::string s2) {
     unsigned int j = stol(s1, 0, 16) ^ stol(s2, 0, 16);
     std::stringstream sstream;
@@ -243,16 +245,16 @@ std::string XOR(std::string s1, std::string s2) {
 void keyInit(std::string key) {
     for (int i = 0; i < 18; i++) {
         P[i] = XOR(P[i], key);
-        std::cout << "Round " << (i + 1) << ": " << P[i] << std::endl;
+        //std::cout << "Round " << (i + 1) << ": " << P[i] << std::endl;
     }
-
 }
-/*githu
-    Issue is here. When left has a leading 0, it is left out
-    so the substr will not grab that leading 0. we need to pad
-    the front with 0s of left and right everywhere.
-    TODO: NEED TO PAD ENOUGH 0S
-*/
+
+void KeyCleanUp() {
+	for (int i = 0; i < 18; i++) {
+		P[i] = p[i];
+	}
+}
+
 std::string f(std::string left) {
     long b1 = stol(left.substr(0,2), 0, 16);
     long b2 = stol(left.substr(2,2), 0, 16);
@@ -262,7 +264,6 @@ std::string f(std::string left) {
     long val2 = stol(S[1][b2], 0, 16);
     long val3 = stol(S[2][b3], 0, 16);
     long val4 = stol(S[3][b4], 0, 16);
-    std::cout << "a1: " << b1 << " a2: " << b2 << " a3: " << b3 << " a4: " << b4 << std::endl;
 
 
     long ans = ((((val1 + val2) % 4294967296) ^ val3) + val4) % 4294967296;
@@ -281,31 +282,24 @@ std::string encrypt(std::string plaintext, std::string key) {
     std::string left;
     std::string right;
     for (int i = 0; i < 16; i++) {
-        std::cout << "\n\n-----Round " << (i + 1 ) << " Start ------------\n";
         //do each round
 
         //set left and right
         left = plaintext.substr(0, 8);
         right = plaintext.substr(8, 8);
-        std::cout << "1. Set L&R values-> left: " << left << " Right: " << right << std::endl;
 
         //left xor with p[i]
         left = XOR(left, P[i]);
-        std::cout << "2. Left xor: " << left << std::endl;
-
 
         //get function output on f
         std::string temp = f(left);
-        std::cout << "3. left into f: " << temp << std::endl;
 
         //right xor function output
         right = XOR(temp, right);
-        std::cout << "4. fout xor right: " << right << std::endl; 
 
         //swap right and left
         plaintext = right + left;
-        std::cout << "Final plaintext " << plaintext << std::endl; 
-        std::cout << "-----Round " << (i + 1) << " End ------------\n";
+
 
     }
     right = plaintext.substr(0, 8);
@@ -320,31 +314,25 @@ std::string decrypt(std::string plaintext, std::string key) {
     std::string left;
     std::string right;
     for (int i = 17; i > 1; i--) {
-        std::cout << "\n\n-----Round " << (i + 1 ) << " Start ------------\n";
         //do each round
 
         //set left and right
         left = plaintext.substr(0, 8);
         right = plaintext.substr(8, 8);
-        std::cout << "1. Set L&R values-> left: " << left << " Right: " << right << std::endl;
 
         //left xor with p[i]
         left = XOR(left, P[i]);
-        std::cout << "2. Left xor: " << left << std::endl;
 
 
         //get function output on f
         std::string temp = f(left);
-        std::cout << "3. left into f: " << temp << std::endl;
 
         //right xor function output
         right = XOR(temp, right);
-        std::cout << "4. fout xor right: " << right << std::endl; 
 
         //swap right and left
         plaintext = right + left;
-        std::cout << "Final plaintext " << plaintext << std::endl; 
-        std::cout << "-----Round " << (i + 1) << " End ------------\n";
+
 
     }
     right = plaintext.substr(0, 8);
@@ -358,24 +346,49 @@ std::string decrypt(std::string plaintext, std::string key) {
 
 
 std::string EncryptDriverPassword(std::string plaintext, std::string key) {
-	keyInit(key);
 	// need to get the plaintext to be 8 bytes/char in hex, just require that the key is 4 char
 	while (plaintext.size() % 8 != 0) {
-		plaintext += " ";
+		plaintext += "";
+		break;
 	}
 	std::string plaintext_hex = GetHexString(plaintext);
 	std::string key_hex = GetHexString(key);
 	std::string ciphertext = "";
-	// loop around the hex string and operate on chuncks of 8
-	for (int i = 0; i < plaintext_hex.size(); i += 8) { // there should be no left over
-		ciphertext += encrypt(plaintext_hex.substr(i, 8), key_hex)
+
+	keyInit(key_hex);
+	// loop around the hex string and operate on chuncks of 8 char
+	// also, a hex string of strlen 16 = 64 bits = 8 bytes
+	 for (int i = 0; i < plaintext_hex.size(); i += 16) {
+	 	ciphertext += encrypt(plaintext_hex.substr(i, 16), key_hex);
 	}
+	KeyCleanUp();
 	return ciphertext;
 }
 
-void DecryptDriverPassword() {
-// we will probably have to make a copy of the array keyInit operates on
+std::string DecryptDriverPassword(std::string ciphertext, std::string key) {
+	// proccess the ciphertext in chuncks of 16 (which would be 8 bytes)
+	std::string key_hex = GetHexString(key);
+	std::string plaintext = "";
+	keyInit(key_hex);
+	for (int i = 0; i < ciphertext.size(); i += 16) {
+		plaintext = decrypt(ciphertext, key_hex);
+		break;
+	}
+	KeyCleanUp();
+	// convert this hex to int to char
+	plaintext = GetStrFromHex(plaintext);
+	return plaintext;
 } 
+
+std::string GetStrFromHex(std::string str) {
+	std::string newString;
+	for(int i=0; i < str.length(); i+=2) {
+		std::string byte = str.substr(i, 2);
+		char c = (char) (int)strtol(byte.c_str(), nullptr, 16);
+		newString += c;
+	}
+	return newString;
+}
 
 std::string GetHexString(std::string str) {
 	// convert the string into an int vector (int of each char)
@@ -389,7 +402,7 @@ std::string GetHexString(std::string str) {
 		sstream << std::hex << dec;
 		// the zero padding isn't really ever going to be used
 		hex += (sstream.str().size() == 1) ? "0" + sstream.str() : sstream.str();
-		std::cout << hex << std::endl;
+		//std::cout << hex << std::endl;
 	}
 	return hex;
 }

@@ -12,6 +12,14 @@ void encrypt(std::string plaintext);
 
 std::string EncryptDriverPassword(std::string plaintext, std::string key);
 
+std::string DecryptDriverPassword(std::string ciphertext, std::string key);
+
 std::string GetHexString(std::string str);
+
+std::string GetStrFromHex(std::string str);
+
+void KeyCleanUp();
+
+void mainT();
 
 #endif
