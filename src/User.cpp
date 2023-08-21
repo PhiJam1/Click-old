@@ -170,7 +170,7 @@ void User::CreateCipher() {
   int selection = -1;
   while (selection != 1 && selection != 2 && selection != 3) {
     std::cout << "What type of encryption do you want\n";
-    std::cout << "XOR (1)\nBlowfish (2))\nAES (3)\nSelection: ";
+    std::cout << "XOR (1)\nBlowfish (2)\nAES (3)\nSelection: ";
     std::cin >> selection;
   }
   if (selection == 1) {
@@ -211,7 +211,7 @@ void User::RetrievePassword() {
     std::cin >> selection;
   }
   selection--; // to make it work like an index
-  std::string plaintext = "it didnt work";
+  std::string plaintext = "it didn't work";
   if (ciphers.at(selection).type == XOR) {
     std::vector<int> ciphertext;
     std::stringstream iss(ciphers.at(selection).ciphertext);
@@ -242,4 +242,30 @@ void User::DeleteData() {
   int selection = 0;
   std::cin >> selection;
   ciphers.erase(ciphers.begin() + --selection);
+}
+
+void User::EncryptFile() {
+  std::string plaintext_filename;
+  std::string key;
+  // get the file with the plain text
+  std::cout << "File name/path: ";
+  std::cin >> plaintext_filename;
+  std::cout << "Key: ";
+  std::cin >> key;
+  int selection = -1;
+  while (selection != 1 && selection != 2 && selection != 3) {
+    std::cout << "What type of encryption do you want\n";
+    std::cout << "XOR (1)\nBlowfish (2)\nAES (3)\nSelection: ";
+    std::cin >> selection;
+  }
+  if (selection == 1) {
+    advancedXorEncryptionFile(plaintext_filename, key);
+  } else if (selection = 2) {
+  } else {
+    std::cout << "Not yet supported\n";
+  }
+}
+
+void User::DecryptFile() {
+  std::cout << "todo";
 }

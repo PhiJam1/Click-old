@@ -85,10 +85,87 @@ std::string advancedXorEncryptionPassword(std::string plaintext, std::string key
     }
     return ciphertext;
 }
+void advancedXorDecryptionFile(std::string ciphertextFileName, std::string key) {
+    //open encrypted file for reading
+    std::ifstream cipherFile;
+    cipherFile.open(ciphertextFileName);
+
+    if (cipherFile.fail()) {
+        //file could not be opened for reading
+        std::cout << "Ciphertext file could not be opened\n";
+        return;
+    }
+    
+    std::ofstream plainFile;
+    plainFile.open("plaintext.txt");
+    if (plainFile.fail()) {
+        //File could not be opened for writing
+        std::cout << "Plaintext file could not be opened\n";
+        return;
+    }
+
+    std::cout << "Decrypting data... " << std::endl;
+    std::string buff = "";
+    for (int i = 0; cipherFile >> buff; i++) {
+        char c = key[i % key.length()];
+        //stoi() converts the string to an ascii integer
+        c ^= stoi(buff);
+        plainFile << c;
+        key[i % key.length()] = ((key[i % key.length()] + 1) % 127) + 1;
+    }
+
+    //close files
+    plainFile.close();
+    cipherFile.close();
+
+    std::cout << "Data have been saved to 'USERDATA\\plaintext.txt'" << std::endl;
+}
+
+void advancedXorEncryptionFile(std::string plaintextFileName, std::string key) {
+    //open plaintext file
+    std::ifstream plaintextFile;
+    plaintextFile.open(plaintextFileName);
+
+    if (!plaintextFile.is_open()) {
+        std::cout << "Plaintext file could not be opened\n";
+        return;
+    }
+
+    //Open cipher text file
+    std::ofstream ciphertextFile;
+    ciphertextFile.open("ciphertext.txt");
+    
+    if (!ciphertextFile.is_open()) {
+        std::cout << "Error writing data\n";
+    }
+
+    std::cout << "Encrypting ..." << std::endl;
+    char c;
+
+    //Xors each character in plaintext with a character in key
+    for (int i = 0; plaintextFile.get(c); i++) {
+        ciphertextFile << (c ^ key.at(i % key.length())) << " ";
+        int x = ((key[i % key.length()] + 1) % 127) + 1;
+        key[i % key.length()] = ((key[i % key.length()] + 1) % 127) + 1;
+        //std::cout << key << " - > " << x << std::endl;
+    }
+
+    //close files
+    ciphertextFile.close();
+    plaintextFile.close();
+
+    std::cout << "Data have been saved to 'USERDATA\\ciphertext.txt'" << std::endl;
+
+}
 
 
 
-/* File functions */
+
+
+
+// The following are older versions of the xor cipher. These I call a static xor cipher as
+// the key is constant. The newer version (which I call a dynamic xor cipher) is constantly
+// changing the given key, so the cipher is much more resilient to a frequency analysis
 
 /*
 void xorDecryptFile(std::string ciphertextFileName, std::string key) {
@@ -124,79 +201,6 @@ void xorDecryptFile(std::string ciphertextFileName, std::string key) {
     cipherFile.close();
 
     std::cout << "Data have been saved to 'plaintext.txt'" << std::endl;
-}
-
-void advancedXorDecryptionFile(std::string ciphertextFileName, std::string key) {
-    //open encrypted file for reading
-    std::ifstream cipherFile;
-    cipherFile.open(ciphertextFileName);
-
-    if (cipherFile.fail()) {
-        //file could not be opened for reading
-        std::cout << "Ciphertext file could not be opened\n";
-        return;
-    }
-    
-    std::ofstream plainFile;
-    plainFile.open("plaintext.txt");
-    if (plainFile.fail()) {
-        //File could not be opened for writing
-        std::cout << "Plaintext file could not be opened\n";
-        return;
-    }
-
-    std::cout << "Decrypting data... " << std::endl;
-    std::string buff = "";
-    for (int i = 0; cipherFile >> buff; i++) {
-        char c = key[i % key.length()];
-        //stoi() converts the string to an ascii integer
-        c ^= stoi(buff);
-        plainFile << c;
-        key[i % key.length()] = ((key[i % key.length()] + 1) % 127) + 1;
-    }
-
-    //close files
-    plainFile.close();
-    cipherFile.close();
-
-    std::cout << "Data have been saved to 'plaintext.txt'" << std::endl;
-}
-
-void advancedXorEncryptionFile(std::string plaintextFileName, std::string key) {
-    //open plaintext file
-    std::ifstream plaintextFile;
-    plaintextFile.open(plaintextFileName);
-
-    if (!plaintextFile.is_open()) {
-        std::cout << "Plaintext file could not be opened\n";
-        return;
-    }
-
-    //Open cipher text file
-    std::ofstream ciphertextFile;
-    ciphertextFile.open("ciphertext.txt");
-    
-    if (!ciphertextFile.is_open()) {
-        std::cout << "Error writing data\n";
-    }
-
-    std::cout << "Encrypting ..." << std::endl;
-    char c;
-
-    //Xors each character in plaintext with a character in key
-    for (int i = 0; plaintextFile.get(c); i++) {
-        ciphertextFile << (c ^ key.at(i % key.length())) << " ";
-        int x = ((key[i % key.length()] + 1) % 127) + 1;
-        key[i % key.length()] = ((key[i % key.length()] + 1) % 127) + 1;
-        std::cout << key << " - > " << x << std::endl;
-    }
-
-    //close files
-    ciphertextFile.close();
-    plaintextFile.close();
-
-    std::cout << "Data have been saved to 'ciphertext.txt'" << std::endl;
-
 }
 
 void xorEncryptFile(std::string plaintextFileName, std::string key) {

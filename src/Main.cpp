@@ -46,6 +46,12 @@ int main() {
                 user->DeleteData();
                 break;
             case 4:
+                user->EncryptFile();
+                break;
+            case 5:
+                user->DecryptFile();
+                break;
+            case 6:
                 return 0;
             default:
                 std::cout << "Invalid Selection" << std::endl;

@@ -57,6 +57,10 @@ class User {
         void RetrievePassword();
 
         void DeleteData();
+
+        void EncryptFile();
+
+        void DecryptFile();
 };
 
 #endif
