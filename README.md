@@ -8,5 +8,7 @@ Blowfish
 Constant XOR
 Dynamic XOR
 Bcrypt
+
+
 In development:
 RSA
