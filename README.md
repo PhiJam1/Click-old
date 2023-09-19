@@ -7,7 +7,6 @@ SHA265
 Blowfish
 Constant XOR
 Dynamic XOR
-
+Bcrypt
 In development:
-Bcyrpt
 RSA
