@@ -9,15 +9,16 @@
 #include "XOR.hpp"
 #include "blowfish.hpp"
 
-//Set the cipher list later
+// This constructor is used for new users
 User::User(std::string firstName, std::string lastName, std::string email, std::string password, std::string salt) {
   this->firstName = firstName;
   this->lastName = lastName;
   this->email = email;
   this->password = password;
   this->salt = salt;
+  this->SaveUserData();
 }
-
+// This constructor is used for returning users
 User::User(std::string filename, std::string password) {
   std::ifstream ifs("USERDATA/" + filename + ".cli");
   if (!ifs.is_open()) {
@@ -68,7 +69,7 @@ std::string User::getLastName() {
 std::string User::getEmail() {
   return this->email;
 }
-// this function is not being used
+// this function is not being used. Use advanced XOR cipher functions instead
 std::string User::xorEncryptPasswordDriver(std::string service_name, std::string plaintext, std::string key) {
   //go through this users ciphers list and see if there is alr one for this
   for (int i = 0; i < ciphers.size(); i++) {
@@ -243,6 +244,8 @@ void User::DeleteData() {
   std::cin >> selection;
   ciphers.erase(ciphers.begin() + --selection);
 }
+
+
 
 void User::EncryptFile() {
   std::string plaintext_filename;

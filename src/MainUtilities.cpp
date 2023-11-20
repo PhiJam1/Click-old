@@ -11,7 +11,16 @@
 #include "bcrypt.h"
 #include "MainUtilities.hpp"
 
+/*
+ * Function to login a user. It will ask for credentials
+ * and compare that to what's stored in the database.
+ * The new_user parameter is only set to true if the NewAccount()
+ * function is calling this function (NewAccount should redirect to login)
+ * It just tells the function there is no saved data to load.
+*/
+
 User* Login(bool new_user) {
+
     // user information
     std::string first_name = " ";
     std::string last_name = " ";
@@ -49,7 +58,6 @@ User* Login(bool new_user) {
                     User* user = nullptr;
                     if (new_user) {
                         user = new User(first_name, last_name, email, password, salt);
-                        user->SaveUserData();
                     } else {
                         user = new User(email, password);
                     }
@@ -57,6 +65,7 @@ User* Login(bool new_user) {
                 }
             }
         }
+        // This means EOF was reached and nothing matched the provided credentials. 
         std::cout << "Invalid Login\nTry Again (1)\nCreate Account (2)\nSelection: ";
         int selection;
         std::cin >> selection;
@@ -64,8 +73,16 @@ User* Login(bool new_user) {
             return NewAccount();
         }
     }
+    // This line should never be reached
     return nullptr;
 }
+
+/*
+ * Function to create a new user account. It will ask for basic user
+ * information and have them create a password that follows the rules
+ * outlined in ValidPassword(). On success, it will save the provided credentials 
+ * and redirect the user to the login page.
+*/
 
 User* NewAccount() {
     // user information
@@ -106,16 +123,15 @@ User* NewAccount() {
             }
         }
     }
-    // Get a password and assign a salt
+    // Get a password and assign a salt. Ensure the password is strong enough.
     while (password == " " || !ValidPassword(password)) {
-        std::cout << "Enter password: ";
+        std::cout << "Enter valid password: ";
         std::cin >> password;
     }
-    // EnforcePasswordRules() - do this later
     salt = GenSalt();
     hash = bcrypt::generateHash(password + salt);
 
-    // Save the hash, falsesalt, and other user data
+    // Save the hash, salt, and other user data
     std::ofstream ofs(CRED_FILENAME, std::ios::out | std::ios::app);
     if (!ofs.is_open()) {
         return nullptr;
@@ -128,7 +144,9 @@ User* NewAccount() {
     std::cout << "You'll be redirected to the login page\n";
     return Login(true);
 }
-
+/*
+ * Function that will enforces password rules.
+*/
 bool ValidPassword(std::string password) {
     // check for length
     if (password.size() < 5 || password.size() > 15) {
@@ -149,25 +167,28 @@ bool ValidPassword(std::string password) {
         if (!isalnum(let)) special_char = true;
     }
     if (!lower_case) {
-        std::cout << "Password must contian at least one lower case letter\n";
+        std::cout << "Password must contain at least one lower case letter\n";
         return false;
     } else if (!upper_case) {
-        std::cout << "Password must contian at least one upper case letter\n";
+        std::cout << "Password must contain at least one upper case letter\n";
         return false;
     } else if (!num) {
-        std::cout << "Password must contian at least one number\n";
+        std::cout << "Password must contain at least one number\n";
         return false;
     } else if (!letter) {
-        std::cout << "Password must contian at least one letter\n";
+        std::cout << "Password must contain at least one letter\n";
         return false;
     } else if (!special_char) {
-        std::cout << "Password must contian at least one special character\n";
+        std::cout << "Password must contain at least one special character\n";
         return false;
     } else {
         return true;
     }
 }
-
+/*
+ * Function that will check to see if a email is already used
+ * in our database.
+*/
 bool EmailInUse(std::string email) {
     std::ifstream ifs{CRED_FILENAME};
     std::string buff;
@@ -183,9 +204,14 @@ bool EmailInUse(std::string email) {
     }
     return false;
 }
-// note, these random  numbers aren't secure, but that's fine because
-// we can still ensure security if the salt is breached. Also, we store
-// the salt as plaintext next to the password hash, so its not really a secret.
+
+/*
+ * Function that will generate a salt to pair with a password.
+ * note, these random  numbers aren't secure, but that's fine because
+ * we can still ensure security if the salt is breached. Also, we store
+ * the salt as plaintext next to the password hash, so its not a secret. It
+ * is only used to prevent a dictionary/table attack for known plaintext - hash combos. 
+*/
 std::string GenSalt() {
     srand((int) time(0));
     int len = (rand() % 10) + 5; // length will vary from 5 to 14 inclusive
