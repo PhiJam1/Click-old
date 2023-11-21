@@ -95,7 +95,7 @@ void User::CreateCipher() {
   int selection = -1;
   while (selection != 1 && selection != 2) {
     std::cout << "What type of encryption do you want\n";
-    std::cout << "XOR (1)\nBlowfish (2)\nAES (3)\nSelection: ";
+    std::cout << "XOR (1)\nBlowfish (2)\nSelection: ";
     std::cin >> selection;
   }
   if (selection == 1) {
@@ -175,9 +175,18 @@ void User::EncryptFile() {
   std::cout << "Key: ";
   std::cin >> key;
   advancedXorEncryptionFile(plaintext_filename, key);
-  std::cout << "Ciphertext written to file\n";
+  std::cout << "Ciphertext written to 'ciphertext.txt'\n";
 }
 
 void User::DecryptFile() {
-  std::cout << "todo";
+  std::string ciphertext_filename;
+  std::string key;
+  // get the file with the plain text
+  std::cout << "File name/path: ";
+  std::cin >> ciphertext_filename;
+  std::cout << "Key: ";
+  std::cin >> key;
+  advancedXorDecryptionFile(ciphertext_filename, key);
+  std::cout << "plaintext written to 'plaintext.txt'\n";
 }
+

@@ -85,6 +85,45 @@ std::string advancedXorEncryptionPassword(std::string plaintext, std::string key
     }
     return ciphertext;
 }
+
+void advancedXorEncryptionFile(std::string plaintextFileName, std::string key) {
+  //open plaintext file
+  std::ifstream plaintextFile;
+  plaintextFile.open(plaintextFileName);
+
+  if (!plaintextFile.is_open()) {
+      std::cout << "Plaintext file could not be opened\n";
+      return;
+  }
+
+  //Open cipher text file
+  std::ofstream ciphertextFile;
+  ciphertextFile.open("ciphertext.txt");
+  
+  if (!ciphertextFile.is_open()) {
+      std::cout << "Error writing data\n";
+  }
+
+  std::cout << "Encrypting ..." << std::endl;
+  char c;
+
+  //Xors each character in plaintext with a character in key
+  for (int i = 0; plaintextFile.get(c); i++) {
+      ciphertextFile << (c ^ key.at(i % key.length())) << " ";
+      int x = ((key[i % key.length()] + 1) % 127) + 1;
+      key[i % key.length()] = ((key[i % key.length()] + 1) % 127) + 1;
+      //std::cout << key << " - > " << x << std::endl;
+  }
+
+  //close files
+  ciphertextFile.close();
+  plaintextFile.close();
+
+  std::cout << "Data have been saved to 'ciphertext.txt'" << std::endl;
+}
+
+
+
 void advancedXorDecryptionFile(std::string ciphertextFileName, std::string key) {
     //open encrypted file for reading
     std::ifstream cipherFile;
@@ -118,46 +157,8 @@ void advancedXorDecryptionFile(std::string ciphertextFileName, std::string key) 
     plainFile.close();
     cipherFile.close();
 
-    std::cout << "Data have been saved to 'USERDATA\\plaintext.txt'" << std::endl;
+    std::cout << "Data have been saved to 'plaintext.txt'" << std::endl;
 }
-
-void advancedXorEncryptionFile(std::string plaintextFileName, std::string key) {
-    //open plaintext file
-    std::ifstream plaintextFile;
-    plaintextFile.open(plaintextFileName);
-
-    if (!plaintextFile.is_open()) {
-        std::cout << "Plaintext file could not be opened\n";
-        return;
-    }
-
-    //Open cipher text file
-    std::ofstream ciphertextFile;
-    ciphertextFile.open("ciphertext.txt");
-    
-    if (!ciphertextFile.is_open()) {
-        std::cout << "Error writing data\n";
-    }
-
-    std::cout << "Encrypting ..." << std::endl;
-    char c;
-
-    //Xors each character in plaintext with a character in key
-    for (int i = 0; plaintextFile.get(c); i++) {
-        ciphertextFile << (c ^ key.at(i % key.length())) << " ";
-        int x = ((key[i % key.length()] + 1) % 127) + 1;
-        key[i % key.length()] = ((key[i % key.length()] + 1) % 127) + 1;
-        //std::cout << key << " - > " << x << std::endl;
-    }
-
-    //close files
-    ciphertextFile.close();
-    plaintextFile.close();
-
-    std::cout << "Data have been saved to 'USERDATA\\ciphertext.txt'" << std::endl;
-
-}
-
 
 
 

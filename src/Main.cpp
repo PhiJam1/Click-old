@@ -35,7 +35,7 @@ int main() {
     while (1) {
         std::cout << "\n~~~~~~~~~~~~~~\n";
         std::cout << "Main Page Options:\nCreate Cipher (1)\nRetrieve Password (2)\n";
-        std::cout << "Delete Data (3)\nExit (4)\nSelection: ";
+        std::cout << "Delete Data (3)\nEncrypt File (4)\nDecrypt File (5)\nExit (6)\nSelection: ";
         selection = -1;
         std::cin >> selection;
         std::cout << "\n~~~~~~~~~~~~~~\n";
