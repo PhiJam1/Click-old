@@ -366,6 +366,7 @@ std::string EncryptDriverPassword(std::string plaintext, std::string key) {
 
 std::string DecryptDriverPassword(std::string ciphertext, std::string key) {
 	// proccess the ciphertext in chuncks of 16 (which would be 8 bytes)
+	ciphertext = ciphertext.substr(0, ciphertext.size() - 1);
 	std::string key_hex = GetHexString(key);
 	std::string plaintext = "";
 	keyInit(key_hex);

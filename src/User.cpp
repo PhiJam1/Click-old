@@ -158,7 +158,7 @@ void User::SaveUserData() {
     ofs << "\n" << ciphers.at(i).type << " ";
     ofs << ciphers.at(i).service_name << " ";
     ofs << ciphers.at(i).username << "\n";
-    ofs << ciphers.at(i).ciphertext << "@";
+    ofs << ciphers.at(i).ciphertext << " @";
   }
 }
 

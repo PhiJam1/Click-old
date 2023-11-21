@@ -7,6 +7,9 @@
  * A user object will be created for the user. That object will be loaded
  * in with any saved ciphers. The program then interacts with that object
  * to handle user requests.
+ * 
+ * todo: check to see if blowfish and aes encryption work
+ * todo: remove unused files.
 */
 int main() {
     std::cout << "Greetings To Click" << std::endl;
