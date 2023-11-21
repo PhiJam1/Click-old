@@ -41,15 +41,6 @@ class User {
 
         std::string ChangeEmail(std::string new_email);
 
-        // for xor, using the user's plaintext password as the key is probably enough
-        std::string xorEncryptPasswordDriver(std::string loginName, std::string plaintext, std::string key);
-
-        std::string xorDecryptPasswordDriver(std::string ciphertext, std::string key);
-
-        std::string xorAdvEncryptPasswordDriver(std::string loginName, std::string plaintext, std::string key);
-        
-        std::string xorAdvDecryptPasswordDriver(std::string ciphertext, std::string key);
-
         void SaveUserData();
 
         void CreateCipher();

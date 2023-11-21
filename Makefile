@@ -1,7 +1,7 @@
 CXX=g++
 CXX_FLAGS= -Iincludes -std=c++20 -g
 
-CIPHER_FILES = ./src/bcrypt.cpp  ./src/blowfish_b.cpp ./src/XOR.cpp ./src/blowfishUS.cpp
+CIPHER_FILES = ./src/bcrypt.cpp  ./src/bcryptUtilities.cpp ./src/XOR.cpp ./src/blowfishUS.cpp
 
 exec: bin/exec
 	bin/exec

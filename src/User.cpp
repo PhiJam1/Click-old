@@ -69,83 +69,7 @@ std::string User::getLastName() {
 std::string User::getEmail() {
   return this->email;
 }
-// this function is not being used. Use advanced XOR cipher functions instead
-std::string User::xorEncryptPasswordDriver(std::string service_name, std::string plaintext, std::string key) {
-  //go through this users ciphers list and see if there is alr one for this
-  for (int i = 0; i < ciphers.size(); i++) {
-    if (ciphers.at(i).service_name == service_name) {
-      throw REPEATED_LOGIN_CREATION;
-    }
-  }
 
-
-  //get cipher text
-  std::string ciphertext = xorEncryptPassword(plaintext, key);
-
-  //return with success message
-  // ciphers.push_back((CipherInfo) {XOR, ciphertext, loginName});
-  return ciphertext;
-}
-
-
-std::string User::xorDecryptPasswordDriver(std::string ciphertext, std::string key) {
-  //turn the cipher text to vector of ints
-  std::string num;
-  std::vector<int> cipherVect;
-  for (int i = 0; i < ciphertext.size(); i++) {
-    if (ciphertext.at(i) != ' ') {
-      num += ciphertext.at(i);
-    } else {
-      cipherVect.push_back(stoi(num));
-      num = "";
-    }
-  }
-
-  //get plaintext text
-  std::string plaintext = xorDecryptPassword(cipherVect, key);
-
-  //malloc a ciphers object. Save that POINTER in the cipher list for this user
-
-  //return with success message
-  return plaintext;
-}
-
-
-std::string User::xorAdvEncryptPasswordDriver(std::string service_name, std::string plaintext, std::string key) {
-  //go through this users ciphers list and see if there is alr one for this
-  for (int i = 0; i < ciphers.size(); i++) {
-    if (ciphers.at(i).service_name == service_name) {
-      throw REPEATED_LOGIN_CREATION;
-    }
-  }
-
-  //get cipher text
-  std::string ciphertext = advancedXorEncryptionPassword(plaintext, key);
-
-  //return with success message
-  return ciphertext;
-}
-
-std::string User::xorAdvDecryptPasswordDriver(std::string ciphertext, std::string key) {
-  //turn the cipher text to vector of ints
-  std::string num;
-  std::vector<int> cipherVect;
-  for (int i = 0; i < ciphertext.size(); i++) {
-    if (ciphertext.at(i) != ' ') {
-      num += ciphertext.at(i);
-    } else {
-      cipherVect.push_back(stoi(num));
-      num = "";
-    }
-  }
-
-  //get plaintext text
-  std::string plaintext = advancedXorDecryptionPassword(cipherVect, key);
-
-
-  //return with success message
-  return plaintext;
-}
 // this will overwrite everything alr there
 void User::SaveUserData() {
   std::string output_filename = "USERDATA/" + email + ".cli";
@@ -169,17 +93,15 @@ void User::CreateCipher() {
   std::cout << "For what service is this for: ";
   std::cin >> login_name;
   int selection = -1;
-  while (selection != 1 && selection != 2 && selection != 3) {
+  while (selection != 1 && selection != 2) {
     std::cout << "What type of encryption do you want\n";
     std::cout << "XOR (1)\nBlowfish (2)\nAES (3)\nSelection: ";
     std::cin >> selection;
   }
   if (selection == 1) {
     type = XOR;
-  } else if (selection = 2) {
-    type = BLOWFISH;
   } else {
-    type = AES;
+    type = BLOWFISH;
   }
   std::string user_name = "";
   std::cout << "Enter user name: ";
@@ -192,7 +114,7 @@ void User::CreateCipher() {
     ciphertext = advancedXorEncryptionPassword(plaintext, password.substr(0,5));
   } else if (type == BLOWFISH) {
     ciphertext = EncryptDriverPassword(plaintext, password.substr(0, 4)); // should rename that function
-  }
+  } 
   ciphers.push_back((CipherInfo) {type, login_name, user_name, ciphertext});
   SaveUserData();
 }
@@ -223,9 +145,6 @@ void User::RetrievePassword() {
     plaintext = advancedXorDecryptionPassword(ciphertext, password.substr(0, 5));
   } else if (ciphers.at(selection).type == BLOWFISH) {
     plaintext = DecryptDriverPassword(ciphers.at(selection).ciphertext, password.substr(0, 4));
-  } 
-  else {
-    std::cout << "That is not yet supported";
   }
   std::cout << "Username: " << ciphers.at(selection).username << std::endl;
   std::cout << "Password: " << plaintext << std::endl;
@@ -255,18 +174,8 @@ void User::EncryptFile() {
   std::cin >> plaintext_filename;
   std::cout << "Key: ";
   std::cin >> key;
-  int selection = -1;
-  while (selection != 1 && selection != 2 && selection != 3) {
-    std::cout << "What type of encryption do you want\n";
-    std::cout << "XOR (1)\nBlowfish (2)\nAES (3)\nSelection: ";
-    std::cin >> selection;
-  }
-  if (selection == 1) {
-    advancedXorEncryptionFile(plaintext_filename, key);
-  } else if (selection = 2) {
-  } else {
-    std::cout << "Not yet supported\n";
-  }
+  advancedXorEncryptionFile(plaintext_filename, key);
+  std::cout << "Ciphertext written to file\n";
 }
 
 void User::DecryptFile() {
