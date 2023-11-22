@@ -6,6 +6,7 @@
 #include <fstream>
 #include <ios>
 #include <bits/stdc++.h>
+#include <sqlite3.h>
 
 #include "User.hpp"
 #include "bcrypt.h"
@@ -132,14 +133,44 @@ User* NewAccount() {
     hash = bcrypt::generateHash(password + salt);
 
     // Save the hash, salt, and other user data
-    std::ofstream ofs(CRED_FILENAME, std::ios::out | std::ios::app);
-    if (!ofs.is_open()) {
+    sqlite3 * db;
+    int rc = sqlite3_open("USERDATA/creds.db", &db);
+    if (rc) {
+        std::cout << "Error opening the creds database\n";
         return nullptr;
     }
-    ofs << "--\n" <<
-    first_name << "\n" << last_name << "\n" 
-    << hash << "\n" << salt << "\n" << email << "\n";
-    ofs.close();
+    // create a table if non exists
+    const char * create_table = "CREATE TABLE IF NOT EXISTS credentials (email TEXT PRIMARY KEY, password_hash TEXT, salt TEXT, first_name TEXT, last_name TEXT);";
+    rc = sqlite3_exec(db, create_table, 0, 0, 0);
+    if (rc != SQLITE_OK) {
+        std::cout << "Error creating creds table\n";
+        return nullptr;
+    }
+    // insert this value
+    std::cout << "hrere\n\n\n";
+    std::string insert = "INSERT INTO credentials (email, password_hash, salt, first_name, last_name) VALUES ('" + email + "', " +
+                    "'" + hash + "', " +
+                    "'" + salt + "', " +
+                    "'" + first_name + "', " +
+                    "'" + last_name + "');";
+                    
+    rc = sqlite3_exec(db, insert.c_str(), 0, 0, 0);
+    if (rc != SQLITE_OK) {
+        std::cout << "Error saving cred data\n";
+        return nullptr;
+    }
+    sqlite3_close(db);
+    
+
+
+    // std::ofstream ofs(CRED_FILENAME, std::ios::out | std::ios::app);
+    // if (!ofs.is_open()) {
+    //     return nullptr;
+    // }
+    // ofs << "--\n" <<
+    // first_name << "\n" << last_name << "\n" 
+    // << hash << "\n" << salt << "\n" << email << "\n";
+    // ofs.close();
     // redirect to the login page
     std::cout << "You'll be redirected to the login page\n";
     return Login(true);
