@@ -13,34 +13,6 @@
 #include "MainUtilities.hpp"
 
 
-
-// this function will only ever be called if the query return with values
-// if it returned with any values, there is a collision.
-int EmailInUse(void* data, int argc, char** argv, char** /* azColName */) {
-    return SQLITE_CONSTRAINT_PRIMARYKEY;
-}
-
-int GetSalt(void* data, int argc, char** argv, char** /* azColName */) {
-    std::string * salt = static_cast<std::string *>(data);
-    if (argc == 0) {
-        return SQLITE_DENY;
-    } else {
-        *salt = argv[0];
-        return SQLITE_OK;
-    }
-
-}
-
-int CheckPassword(void* data, int argc, char** argv, char** /* azColName */) {
-    auto& [password, salt] = *static_cast<std::pair<std::string, std::string> *>(data);
-    
-    char * password_hash = argv[0];
-    if (bcrypt::validatePassword(password + salt, password_hash)) {
-        return SQLITE_DONE;
-    } else {
-        return SQLITE_DENY;
-    }
-}
 /*
  * Function to login a user. It will ask for credentials
  * and compare that to what's stored in the database.
@@ -55,7 +27,9 @@ User* Login(bool new_user) {
     std::string email = " ";
     std::string password = " ";
     std::string salt = " ";
-
+    std::string first_name = " ";
+    std::string last_name = " ";
+    
     while (1) {
         std::cout << "Enter email: ";
         std::cin >> email;
@@ -77,20 +51,23 @@ User* Login(bool new_user) {
 
 
         // get the salt for this username
-        std::string email_command = "SELECT salt FROM credentials WHERE email = '" + email + "';";
-        rc = sqlite3_exec(db, email_command.c_str(), GetSalt, &salt, 0); // shallow copy of salt NOT fine
+        std::vector<std::string *> userData = {&salt, &first_name, &last_name};
+        std::string email_command = "SELECT salt, first_name, last_name FROM credentials WHERE email = '" + email + "';";
+        rc = sqlite3_exec(db, email_command.c_str(), GetSalt, &userData, 0); // shallow copy of salt NOT fine
         // if the salt remains empty, that means the email did not have any saved data.
         if (salt != " ") {
             // if we get the salt, get and check the password.
             std::string selectDataSQL = "SELECT password_hash FROM credentials WHERE email = '" + email + "';";
             std::pair<std::string, std::string> tmp = {password, salt}; // shallow copies are fine here
             rc = sqlite3_exec(db, selectDataSQL.c_str(), CheckPassword, &tmp, 0);
-            if (rc == SQLITE_DONE) {
-                std::cout << "Welcome " + email << std::endl; 
+            if (rc == SQLITE_OK) {
+                std::cout << "Welcome " + first_name << std::endl; 
                 // construct a new user object and send back the address
-                return new_user ? new User("first_name", "last_name", email, password, salt) : new User(email, password);
+                return new_user ? new User(first_name, last_name, email, password, salt) : new User(email, password);
             }
         } 
+
+        // if we did not get the salt, that means the provided email DNE.
         std::cout << "Invalid Login\nTry Again (1)\nCreate Account (2)\nSelection: ";
         int selection;
         std::cin >> selection;
@@ -195,6 +172,49 @@ User* NewAccount() {
     sqlite3_close(db);
     return Login(true);
 }
+
+
+/* Callback functions */
+
+
+/*
+ * Callback function. If this function is every called, the query will have found a 
+ * match for the provided email. Of course, that means it is already in use and we need
+ * to return with 1 to prevent the OK value.
+*/
+int EmailInUse(void* data, int argc, char** argv, char** /* azColName */) {
+    return 1;
+}
+
+/*
+ * Callback function that will set the salt to what the query returns.
+*/
+int GetSalt(void* data, int argc, char** argv, char** /* azColName */) {
+    std::vector<std::string *>  user_data = * static_cast<std::vector<std::string *> *>(data);
+    if (argc == 0) { // means the query did not get any hits. user/email DNE
+        return 1;
+    }
+    *(user_data.at(0)) = argv[0];
+    *(user_data.at(1)) = argv[1];
+    *(user_data.at(2)) = argv[2];
+    
+    return 0;
+}
+
+/*
+ * Callback function that will only return the OK value
+ * if the password+salt is valid.
+*/
+int CheckPassword(void* data, int argc, char** argv, char** /* azColName */) {
+    auto& [password, salt] = *static_cast<std::pair<std::string, std::string> *>(data);
+    // argv[0] is the password hash. 
+    return !bcrypt::validatePassword(password + salt, argv[0]);
+}
+
+
+
+/* helper functions */
+
 /*
  * Function that will enforces password rules.
 */
@@ -232,9 +252,9 @@ bool ValidPassword(std::string password) {
     } else if (!special_char) {
         std::cout << "Password must contain at least one special character\n";
         return false;
-    } else {
-        return true;
     }
+
+    return true;
 }
 
 /*
