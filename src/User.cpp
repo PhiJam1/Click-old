@@ -30,13 +30,14 @@ User::User(std::string firstName, std::string lastName, std::string email, std::
 
   // get ciphers (if any) from the database
   sqlite3 * db;
-  int rc = sqlite3_open("ciphers.db", &db);
+  int rc = sqlite3_open("USERDATA/ciphers.db", &db);
   if (rc) {
     std::cout << "Error opening up user database\n";
     return;
   }
-  std::string query = "SELECT type, service, username, ciphertext from " + this->email + ";";
+  std::string query = "SELECT type, service_name, username, ciphertext FROM " + this->email + ";";
   rc = sqlite3_exec(db, query.c_str(), SetCiphersCallBack, this, 0);
+  if (rc != SQLITE_OK) std::cout << sqlite3_errmsg(db) << std::endl;
   sqlite3_close(db);
 }
 
