@@ -12,6 +12,35 @@
 #include "bcrypt.h"
 #include "MainUtilities.hpp"
 
+
+
+// this function will only ever be called if the query return with values
+// if it returned with any values, there is a collision.
+int EmailInUse(void* data, int argc, char** argv, char** /* azColName */) {
+    return SQLITE_CONSTRAINT_PRIMARYKEY;
+}
+
+int GetSalt(void* data, int argc, char** argv, char** /* azColName */) {
+    std::string * salt = static_cast<std::string *>(data);
+    if (argc == 0) {
+        return SQLITE_DENY;
+    } else {
+        *salt = argv[0];
+        return SQLITE_OK;
+    }
+
+}
+
+int CheckPassword(void* data, int argc, char** argv, char** /* azColName */) {
+    auto& [password, salt] = *static_cast<std::pair<std::string, std::string> *>(data);
+    
+    char * password_hash = argv[0];
+    if (bcrypt::validatePassword(password + salt, password_hash)) {
+        return SQLITE_DONE;
+    } else {
+        return SQLITE_DENY;
+    }
+}
 /*
  * Function to login a user. It will ask for credentials
  * and compare that to what's stored in the database.
@@ -23,10 +52,9 @@
 User* Login(bool new_user) {
 
     // user information
-    std::string first_name = " ";
-    std::string last_name = " ";
     std::string email = " ";
     std::string password = " ";
+    std::string salt = " ";
 
     while (1) {
         std::cout << "Enter email: ";
@@ -38,35 +66,31 @@ User* Login(bool new_user) {
         std::cout << "Enter password: ";
         std::cin >> password;
         
-        // get the password hash for this email
-        std::ifstream ifs{CRED_FILENAME};
-        std::string buff;
-        std::string tmp_email = "";
-        std::string hash;
-        std::string salt;
-        while (ifs.good()) {
-            ifs >> buff; // the --
-            ifs >> first_name;
-            ifs >> last_name;
-            ifs >> hash;
-            ifs >> salt;
-            ifs >> tmp_email;
-            if (tmp_email == email) {
-                // check the passwords
-                if (bcrypt::validatePassword(password + salt, hash)) {
-                    std::cout << "Welcome " + first_name << std::endl; 
-                    // construct a new user object and send back the address
-                    User* user = nullptr;
-                    if (new_user) {
-                        user = new User(first_name, last_name, email, password, salt);
-                    } else {
-                        user = new User(email, password);
-                    }
-                    return user;
-                }
-            }
+
+        sqlite3* db;
+        User * user = nullptr;
+        int rc = sqlite3_open("USERDATA/creds.db", &db);
+        if (rc) {
+            std::cerr << "Cannot open database: " << sqlite3_errmsg(db) << std::endl;
+            return nullptr;
         }
-        // This means EOF was reached and nothing matched the provided credentials. 
+
+
+        // get the salt for this username
+        std::string email_command = "SELECT salt FROM credentials WHERE email = '" + email + "';";
+        rc = sqlite3_exec(db, email_command.c_str(), GetSalt, &salt, 0); // shallow copy of salt NOT fine
+        // if the salt remains empty, that means the email did not have any saved data.
+        if (salt != " ") {
+            // if we get the salt, get and check the password.
+            std::string selectDataSQL = "SELECT password_hash FROM credentials WHERE email = '" + email + "';";
+            std::pair<std::string, std::string> tmp = {password, salt}; // shallow copies are fine here
+            rc = sqlite3_exec(db, selectDataSQL.c_str(), CheckPassword, &tmp, 0);
+            if (rc == SQLITE_DONE) {
+                std::cout << "Welcome " + email << std::endl; 
+                // construct a new user object and send back the address
+                return new_user ? new User("first_name", "last_name", email, password, salt) : new User(email, password);
+            }
+        } 
         std::cout << "Invalid Login\nTry Again (1)\nCreate Account (2)\nSelection: ";
         int selection;
         std::cin >> selection;
@@ -86,6 +110,22 @@ User* Login(bool new_user) {
 */
 
 User* NewAccount() {
+    // set up database if not already done so
+    sqlite3 * db;
+    int rc = sqlite3_open("USERDATA/creds.db", &db);
+    if (rc) {
+        std::cout << "Error opening the creds database\n";
+        return nullptr;
+    }
+    // create a table if non exists
+    const char * create_table = "CREATE TABLE IF NOT EXISTS credentials (email TEXT PRIMARY KEY, password_hash TEXT, salt TEXT, first_name TEXT, last_name TEXT);";
+    rc = sqlite3_exec(db, create_table, 0, 0, 0);
+    if (rc != SQLITE_OK) {
+        std::cout << "Error creating creds table\n";
+        sqlite3_close(db);
+        return nullptr;
+    }
+
     // user information
     std::cout << "Creating a new account\n";
     std::string first_name = " ";
@@ -111,7 +151,12 @@ User* NewAccount() {
         std::cin >> email;
         // make email fully lower case
         std::transform(email.begin(), email.end(), email.begin(), [](unsigned char c){ return std::tolower(c); });
-        if (EmailInUse(email)) {
+
+        // see if that email is already in the database
+        std::string check_email =  "SELECT first_name FROM credentials WHERE email = '" + email + "';";
+        int ret = sqlite3_exec(db, check_email.c_str(), EmailInUse, 0, 0);
+
+        if (ret != SQLITE_OK) {
             int selection = 0;
             while (selection != 1 && selection != 2) {
                 std::cout << "Email is already in use.\nLogin Page (1)\nUse Different Email (2)\nSelection: ";
@@ -133,21 +178,6 @@ User* NewAccount() {
     hash = bcrypt::generateHash(password + salt);
 
     // Save the hash, salt, and other user data
-    sqlite3 * db;
-    int rc = sqlite3_open("USERDATA/creds.db", &db);
-    if (rc) {
-        std::cout << "Error opening the creds database\n";
-        return nullptr;
-    }
-    // create a table if non exists
-    const char * create_table = "CREATE TABLE IF NOT EXISTS credentials (email TEXT PRIMARY KEY, password_hash TEXT, salt TEXT, first_name TEXT, last_name TEXT);";
-    rc = sqlite3_exec(db, create_table, 0, 0, 0);
-    if (rc != SQLITE_OK) {
-        std::cout << "Error creating creds table\n";
-        return nullptr;
-    }
-    // insert this value
-    std::cout << "hrere\n\n\n";
     std::string insert = "INSERT INTO credentials (email, password_hash, salt, first_name, last_name) VALUES ('" + email + "', " +
                     "'" + hash + "', " +
                     "'" + salt + "', " +
@@ -157,22 +187,12 @@ User* NewAccount() {
     rc = sqlite3_exec(db, insert.c_str(), 0, 0, 0);
     if (rc != SQLITE_OK) {
         std::cout << "Error saving cred data\n";
+        sqlite3_close(db);
         return nullptr;
     }
-    sqlite3_close(db);
     
-
-
-    // std::ofstream ofs(CRED_FILENAME, std::ios::out | std::ios::app);
-    // if (!ofs.is_open()) {
-    //     return nullptr;
-    // }
-    // ofs << "--\n" <<
-    // first_name << "\n" << last_name << "\n" 
-    // << hash << "\n" << salt << "\n" << email << "\n";
-    // ofs.close();
-    // redirect to the login page
     std::cout << "You'll be redirected to the login page\n";
+    sqlite3_close(db);
     return Login(true);
 }
 /*
@@ -215,25 +235,6 @@ bool ValidPassword(std::string password) {
     } else {
         return true;
     }
-}
-/*
- * Function that will check to see if a email is already used
- * in our database.
-*/
-bool EmailInUse(std::string email) {
-    std::ifstream ifs{CRED_FILENAME};
-    std::string buff;
-    std::string curr_email;
-    while (ifs.good()) {
-        ifs >> buff; // get the --
-        for (int i = 0; i < 4 && ifs.good(); i++) 
-            ifs >> buff;
-        ifs >> curr_email; // email
-        if (email == curr_email) {
-            return true;
-        }
-    }
-    return false;
 }
 
 /*

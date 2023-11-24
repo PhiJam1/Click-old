@@ -9,7 +9,7 @@
 // function to create accounts and log users in
 User* Login(bool new_user);
 User* NewAccount();
-bool EmailInUse(std::string email);
+// bool EmailInUse(std::string email);
 std::string GenSalt();
 bool ValidPassword(std::string password);
 
