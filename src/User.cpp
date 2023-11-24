@@ -4,10 +4,21 @@
 #include <sstream>
 #include <fstream>
 #include <cstdio>
+#include <sqlite3.h>
 
 #include "User.hpp"
 #include "XOR.hpp"
 #include "blowfish.hpp"
+
+int User::SetCiphers(char ** argv) {
+  this->ciphers.push_back((CipherInfo) {(CipherType_t) std::stoi(argv[0]), argv[1], argv[2], argv[3]});
+  return 0;
+
+}
+int SetCiphersCallBack(void* data, int argc, char** argv, char** /* azColName */) {  
+  User * obj = static_cast<User *>(data);
+  return obj->SetCiphers(argv);
+}
 
 // This constructor is used for new users
 User::User(std::string firstName, std::string lastName, std::string email, std::string password, std::string salt) {
@@ -16,47 +27,18 @@ User::User(std::string firstName, std::string lastName, std::string email, std::
   this->email = email;
   this->password = password;
   this->salt = salt;
-  this->SaveUserData();
+
+  // get ciphers (if any) from the database
+  sqlite3 * db;
+  int rc = sqlite3_open("ciphers.db", &db);
+  if (rc) {
+    std::cout << "Error opening up user database\n";
+    return;
+  }
+  std::string query = "SELECT type, service, username, ciphertext from " + this->email + ";";
+  rc = sqlite3_exec(db, query.c_str(), SetCiphersCallBack, this, 0);
+  sqlite3_close(db);
 }
-// This constructor is used for returning users
-User::User(std::string filename, std::string password) {
-  std::ifstream ifs("USERDATA/" + filename + ".cli");
-  if (!ifs.is_open()) {
-    std::cout << "User not found\n";
-    throw USER_NOT_FOUND;
-  }
-  
-  // data safe to be stored as plaintext
-  ifs >> firstName;
-  ifs >> lastName;
-  ifs >> email;
-  ifs >> salt;
-
-  // Get ciphers
-  std::string buff = "";
-  while (ifs.good()) {
-    CipherType_t type = XOR;
-    std::string loginName = "";
-    std::string user_name = "";
-    std::string ciphertext = "";
-    ifs >> buff;
-    type = (CipherType_t) stoi(buff);
-    ifs >> loginName;
-    ifs >> user_name;
-
-    ifs >> buff;
-    while (1) {
-      ciphertext += buff + " ";
-      ifs >> buff;
-      if (buff == "@") {
-        break;
-      }
-    }
-    ciphers.push_back({type, loginName, user_name, ciphertext});
-    //std::cout << type << "   " << loginName << "     " << ciphertext << std::endl;
-  }
-  this->password = password;
-} 
 
 std::string User::getFirstName() {
   return this->firstName;
@@ -72,18 +54,38 @@ std::string User::getEmail() {
 
 // this will overwrite everything alr there
 void User::SaveUserData() {
-  std::string output_filename = "USERDATA/" + email + ".cli";
-  std::ofstream ofs(output_filename);
-  if (!ofs.is_open()) {
-    throw DATA_NOT_SAVED;
+  // open the database
+  sqlite3 * db;
+  int rc = sqlite3_open("USERDATA/ciphers.db", &db);
+  if (rc) {
+      std::cout << "Error opening the ciphers database\n";
+      return;
   }
-  ofs << firstName << " " << lastName << " " << email << " " << salt;
+  // delete everything in this user's table so we can overwrite all the data
+  
+  std::string dropTableQuery = "DROP TABLE IF EXISTS " + this->email + ";";
+  rc = sqlite3_exec(db, dropTableQuery.c_str(), 0, 0, 0);
+
+  // recreate the table
+  std::string create_table = "CREATE TABLE IF NOT EXISTS " + this->email + " (type TEXT, service_name TEXT, username TEXT, ciphertext TEXT);";
+  rc = sqlite3_exec(db, create_table.c_str(), 0, 0, 0);
+  if (rc != SQLITE_OK) {
+    std::cout << "Error creating creds table\n";
+    sqlite3_close(db);
+    return;
+  }
+
   for (int i = 0; i < ciphers.size(); i++) {
-    ofs << "\n" << ciphers.at(i).type << " ";
-    ofs << ciphers.at(i).service_name << " ";
-    ofs << ciphers.at(i).username << "\n";
-    ofs << ciphers.at(i).ciphertext << " @";
+    std::string insert = "INSERT INTO " + this->email + " (type, service_name, username, ciphertext) VALUES (" +
+                        "'" + std::to_string(ciphers.at(i).type) + "', " +
+                        "'" + ciphers.at(i).service_name + "', " +
+                        "'" + ciphers.at(i).username + "', " +
+                        "'" + ciphers.at(i).ciphertext + "');";
+    rc = sqlite3_exec(db, insert.c_str(), 0, 0, 0);
+    std::cout << insert << std::endl;
+    if (rc != SQLITE_OK) std::cout << sqlite3_errmsg(db) << std::endl;
   }
+  sqlite3_close(db);
 }
 
 void User::CreateCipher() {

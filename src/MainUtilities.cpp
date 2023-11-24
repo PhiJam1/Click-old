@@ -63,7 +63,7 @@ User* Login(bool new_user) {
             if (rc == SQLITE_OK) {
                 std::cout << "Welcome " + first_name << std::endl; 
                 // construct a new user object and send back the address
-                return new_user ? new User(first_name, last_name, email, password, salt) : new User(email, password);
+                return new User(first_name, last_name, email, password, salt);
             }
         } 
 

@@ -28,10 +28,9 @@ class User {
         std::vector<CipherInfo> ciphers;
 
     public:
+        int SetCiphers(char ** argv);
 
         User(std::string firstName, std::string getLastName, std::string email, std::string password, std::string salt);
-
-        User(std::string filename, std::string password);
 
         std::string getFirstName();
 
