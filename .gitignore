@@ -2,3 +2,5 @@
 *.out
 *.exe
 *.cli
+USERDATA/*
+bin/*
